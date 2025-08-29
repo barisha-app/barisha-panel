@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>BarisHA IPTV Panel</title>
-  <meta name="description" content="BarisHA IPTV test paneli – M3U, Player API, kategori ve canlı yayın yönetimi" />
+  <meta name="description" content="BarisHA IPTV – M3U listeden otomatik yayın tarayıcı, kategoriler ve HLS oynatıcı" />
   <style>
     :root{
       --bg:#0b1020; --panel:#111831; --muted:#9db0d1; --text:#e6efff; --accent:#7c4dff; --accent-2:#43d9ad; --danger:#ff6b6b; --ok:#3ddc97;
@@ -12,64 +12,40 @@
     }
     *{box-sizing:border-box}
     html,body{height:100%}
-    body{margin:0; font:14px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, sans-serif; background:radial-gradient(1200px 800px at 20% -10%, #1a2454 0%, transparent 50%), radial-gradient(900px 600px at 120% 20%, #0c5a56 0%, transparent 50%), var(--bg); color:var(--text)}
-    a{color:var(--accent-2); text-decoration:none}
-    a:hover{text-decoration:underline}
+    body{margin:0; font:14px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,sans-serif;
+      background:radial-gradient(1200px 800px at 20% -10%, #1a2454 0%, transparent 50%), radial-gradient(900px 600px at 120% 20%, #0c5a56 0%, transparent 50%), var(--bg);
+      color:var(--text)}
+    a{color:var(--accent-2); text-decoration:none} a:hover{text-decoration:underline}
     .container{max-width:1200px; margin:20px auto; padding:16px}
-    header{
-      background:linear-gradient(135deg, rgba(124,77,255,.18), rgba(67,217,173,.12));
-      border:1px solid var(--border); border-radius:18px; padding:18px 20px; box-shadow:var(--shadow)
-    }
+    header{background:linear-gradient(135deg, rgba(124,77,255,.18), rgba(67,217,173,.12)); border:1px solid var(--border); border-radius:18px; padding:18px 20px; box-shadow:var(--shadow)}
     .brand{display:flex; align-items:center; gap:12px}
-    .logo{width:40px; height:40px; border-radius:10px; background:conic-gradient(from 210deg at 50% 50%, #7c4dff, #43d9ad, #7c4dff); box-shadow:0 6px 20px rgba(124,77,255,.3)}
-    h1{margin:0; font-size:20px; letter-spacing:.3px}
-    .sub{color:var(--muted); font-size:12px}
-
-    .grid{display:grid; grid-template-columns:300px 1fr; gap:16px; margin-top:16px}
-    @media (max-width: 900px){.grid{grid-template-columns:1fr}}
-
+    .logo{width:40px; height:40px; border-radius:10px; background:conic-gradient(from 210deg,#7c4dff,#43d9ad,#7c4dff); box-shadow:0 6px 20px rgba(124,77,255,.3)}
+    h1{margin:0; font-size:20px} .sub{color:var(--muted); font-size:12px}
+    .grid{display:grid; grid-template-columns:300px 1fr; gap:16px; margin-top:16px} @media (max-width:900px){.grid{grid-template-columns:1fr}}
     .card{background:var(--panel); border:1px solid var(--border); border-radius:16px; box-shadow:var(--shadow)}
-    .card h2{margin:0 0 10px; font-size:16px}
-    .card .body{padding:14px 16px}
-
+    .card h2{margin:0 0 10px; font-size:16px} .card .body{padding:14px 16px}
     .row{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
     label{display:block; font-size:12px; color:var(--muted)}
-    input, select, button{height:38px; border-radius:10px; border:1px solid var(--border); background:#0d142c; color:var(--text)}
-    input, select{padding:0 10px; outline:none; width:100%}
-    .btn{padding:0 14px; cursor:pointer; transition:.2s transform ease; white-space:nowrap}
-    .btn:hover{transform:translateY(-1px)}
-    .btn.primary{background:linear-gradient(135deg, #7c4dff, #43d9ad); border:none; color:white}
-    .btn.soft{background:#121b38}
-    .btn.ok{background: #0f2c25; border-color:#1e614f; color:#a2f1d5}
-    .btn.danger{background:#2b141a; border-color:#5d2a34; color:#ffb3b3}
-
+    input,select,button{height:38px; border-radius:10px; border:1px solid var(--border); background:#0d142c; color:var(--text)}
+    input,select{padding:0 10px; outline:none; width:100%}
+    .btn{padding:0 14px; cursor:pointer; transition:.2s transform ease; white-space:nowrap} .btn:hover{transform:translateY(-1px)}
+    .btn.primary{background:linear-gradient(135deg,#7c4dff,#43d9ad); border:none; color:#fff} .btn.soft{background:#121b38}
+    .btn.ok{background:#0f2c25; border-color:#1e614f; color:#a2f1d5} .btn.danger{background:#2b141a; border-color:#5d2a34; color:#ffb3b3}
     .sidebar{display:flex; flex-direction:column; gap:16px}
     .cats{max-height:55vh; overflow:auto; border-radius:12px; border:1px solid var(--border)}
     .cats ul{list-style:none; margin:0; padding:0}
     .cats li{padding:10px 12px; border-bottom:1px solid var(--border); cursor:pointer}
-    .cats li:hover{background:#0d142c}
-    .cats li.active{background:linear-gradient(90deg, rgba(124,77,255,.18), transparent); border-left:3px solid var(--accent)}
-
+    .cats li:hover{background:#0d142c} .cats li.active{background:linear-gradient(90deg, rgba(124,77,255,.18), transparent); border-left:3px solid var(--accent)}
     .main{display:grid; gap:16px}
-    .test-links a{display:inline-flex; align-items:center; gap:8px; padding:8px 10px; margin:6px 8px 0 0; border:1px dashed var(--border); border-radius:10px; background:#0b132a}
-
-    .toolbar{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
-    .grow{flex:1}
-
-    .streams{display:grid; grid-template-columns:repeat( auto-fill, minmax(220px, 1fr) ); gap:12px}
+    .streams{display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:12px}
     .stream{background:var(--card); border:1px solid var(--border); border-radius:14px; padding:10px}
     .stream .top{display:flex; gap:10px}
     .stream img{width:40px; height:40px; object-fit:contain; background:#0b132a; border-radius:8px; border:1px solid var(--border)}
-    .stream h3{margin:0; font-size:14px}
-    .stream .meta{font-size:12px; color:var(--muted)}
+    .stream h3{margin:0; font-size:14px} .stream .meta{font-size:12px; color:var(--muted)}
     .stream .actions{display:flex; gap:8px; margin-top:8px}
-
-    .video-wrap{background:#000; border-radius:14px; overflow:hidden; border:1px solid var(--border)}
-    video{width:100%; height:56vh; background:#000}
-
-    .log{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; background:#0a1125; color:#cbe2ff; padding:10px 12px; border-radius:10px; max-height:160px; overflow:auto; border:1px solid var(--border)}
-    .muted{color:var(--muted)}
-    .pill{display:inline-block; padding:2px 8px; border-radius:999px; border:1px solid var(--border); background:#0b132a; font-size:11px}
+    .video-wrap{background:#000; border-radius:14px; overflow:hidden; border:1px solid var(--border)} video{width:100%; height:56vh; background:#000}
+    .log{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,\"Liberation Mono\",monospace; background:#0a1125; color:#cbe2ff; padding:10px 12px; border-radius:10px; max-height:160px; overflow:auto; border:1px solid var(--border)}
+    .muted{color:var(--muted)} .pill{display:inline-block; padding:2px 8px; border-radius:999px; border:1px solid var(--border); background:#0b132a; font-size:11px}
     .footer{margin-top:20px; text-align:center; color:var(--muted); font-size:12px}
   </style>
 </head>
@@ -80,45 +56,26 @@
         <div class="logo" aria-hidden="true"></div>
         <div>
           <h1>BarisHA IPTV Panel</h1>
-          <div class="sub">M3U, Player API ve canlı yayınlar için hafif & modern arayüz</div>
+          <div class="sub">M3U listen otomatik yüklenir • HLS oynatma • Arama & kategoriler</div>
         </div>
       </div>
     </header>
 
     <div class="grid">
-      <!-- SOL SİDEBAR -->
       <aside class="sidebar">
         <section class="card">
           <div class="body">
-            <h2>Bağlantı</h2>
+            <h2>M3U Kaynağı</h2>
             <div class="row">
-              <div style="flex:1; min-width:280px">
-                <label>Sunucu URL (temel)</label>
-                <input id="base" placeholder="örn. https://sunucu.com veya boş bırak (aynı alan adını kullan)" />
+              <div style="flex:1; min-width:240px">
+                <label>Etkin Liste URL</label>
+                <input id="m3uUrl" readonly />
               </div>
-              <div style="width:100%"></div>
-              <div style="flex:1; min-width:180px">
-                <label>Kullanıcı Adı</label>
-                <input id="user" placeholder="örn. baris" />
-              </div>
-              <div style="flex:1; min-width:180px">
-                <label>Şifre</label>
-                <input id="pass" type="password" placeholder="örn. Helin2121" />
-              </div>
-              <div style="flex:1; min-width:180px">
-                <label>Yol Şeması</label>
-                <select id="schema">
-                  <option value="proxy">/api/player_api (proxy)</option>
-                  <option value="direct">/player_api (doğrudan)</option>
-                </select>
-              </div>
+              <button class="btn primary" id="reload">Yenile</button>
             </div>
-            <div class="row" style="margin-top:10px">
-              <button class="btn primary" id="saveBtn">Kaydet & Bağlan</button>
-              <button class="btn ok" id="m3uBtn">M3U İndir</button>
-              <button class="btn soft" id="pingBtn">Bağlantı Testi</button>
+            <div class="muted" style="margin-top:8px">
+              İpucu: <code>?m3u=URL</code> parametresiyle kendi listenle açabilirsin.
             </div>
-            <div class="muted" style="margin-top:8px">Bilgileriniz tarayıcıda <b>localStorage</b>'da saklanır. CORS sorunları için proxy modunu kullanın.</div>
           </div>
         </section>
 
@@ -126,24 +83,13 @@
           <div class="body" style="border-bottom:1px solid var(--border)">
             <h2>Kategoriler</h2>
             <div class="row">
-              <button class="btn soft" id="loadCats">Kategorileri Getir</button>
-              <button class="btn soft" id="listAll">Tüm Canlıları Getir</button>
               <span class="pill" id="catCount">0</span>
             </div>
           </div>
           <ul id="catList"></ul>
         </section>
-
-        <section class="card">
-          <div class="body">
-            <h2>Hızlı Testler</h2>
-            <div class="test-links" id="tests"></div>
-            <div class="muted" style="margin-top:8px">Not: Bağlı olduğu sunucuya göre yanıtlar değişebilir.</div>
-          </div>
-        </section>
       </aside>
 
-      <!-- SAĞ ANA BÖLÜM -->
       <main class="main">
         <section class="card video-wrap">
           <video id="player" controls playsinline></video>
@@ -151,19 +97,16 @@
 
         <section class="card">
           <div class="body">
-            <div class="toolbar">
+            <div class="row">
               <div class="grow">
                 <label for="search">Arama</label>
-                <input id="search" placeholder="Kanal veya stream adı yazın…" />
+                <input id="search" placeholder="Kanal adı yazın…" />
               </div>
               <div>
-                <label for="ext">Yayın Türü</label>
+                <label for="ext">Varsayılan Tür</label>
                 <select id="ext"><option value="m3u8">HLS (.m3u8)</option><option value="ts">TS (.ts)</option></select>
               </div>
-              <div style="align-self:flex-end">
-                <button class="btn soft" id="loadStreams">Seçili Kategoriyi Getir</button>
-                <span class="pill" id="streamCount">0 yayın</span>
-              </div>
+              <span class="pill" id="streamCount">0 yayın</span>
             </div>
           </div>
           <div class="body" style="padding-top:0">
@@ -185,220 +128,172 @@
 
   <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js"></script>
   <script>
-    const $ = (sel, el=document) => el.querySelector(sel);
-    const $$ = (sel, el=document) => Array.from(el.querySelectorAll(sel));
+    // ---------- Ayarlar ----------
+    // 1) M3U varsayılan yolu (vercel.json'daki /api/m3u rewrite'ına işaret eder)
+    const DEFAULT_M3U = "/api/m3u";
+    // 2) Xtream tarzı linkler için aynı origin'den oynatma:
+    //    M3U içindeki URL /live/<user>/<pass>/<id>.(m3u8|ts) ise
+    //    otomatik olarak /api/live/<user>/<pass>/<id>.(m3u8|ts) 'e çevrilir.
+    const USE_PROXY_FOR_XTREAM = true;
 
-    const logEl = $('#log');
-    const player = $('#player');
+    // ---------- Yardımcılar ----------
+    const $ = (s, el=document) => el.querySelector(s);
+    const $$ = (s, el=document) => Array.from(el.querySelectorAll(s));
+    const logEl = $("#log");
+    const player = $("#player");
     let hlsInst = null;
 
-    const state = { user:'', pass:'', base:'', schema:'proxy', chosenCat:null, cats:[], streams:[] };
-
-    const log = (msg, type='') => {
-      const time = new Date().toLocaleTimeString();
+    const log = (msg, type="") => {
+      const t = new Date().toLocaleTimeString();
       const color = type==='err' ? 'var(--danger)' : type==='ok' ? 'var(--ok)' : 'var(--muted)';
-      logEl.innerHTML = `<div><span class="muted">[${time}]</span> <span style="color:${color}">${msg}</span></div>` + logEl.innerHTML;
+      logEl.innerHTML = `<div><span class="muted">[${t}]</span> <span style="color:${color}">${msg}</span></div>` + logEl.innerHTML;
     };
 
-    const normalizeBase = (b) => {
-      if(!b) return location.origin; // aynı domain
-      try{ const u = new URL(b); return u.origin; }catch{ // path yazılmışsa
-        return b.replace(/\/$/, '');
-      }
-    };
+    const getParam = (k) => new URLSearchParams(location.search).get(k);
 
-    const readCreds = () => {
-      state.user = $('#user').value.trim();
-      state.pass = $('#pass').value.trim();
-      state.base = normalizeBase($('#base').value.trim());
-      state.schema = $('#schema').value;
-    };
-
-    const saveCreds = () => {
-      readCreds();
-      localStorage.setItem('barisha_creds_v2', JSON.stringify({u:state.user, p:state.pass, b:$('#base').value.trim(), s:state.schema}));
-    };
-
-    const loadCreds = () => {
-      const saved = localStorage.getItem('barisha_creds_v2');
-      if(saved){
-        try{ const {u,p,b,s} = JSON.parse(saved); $('#user').value=u||''; $('#pass').value=p||''; $('#base').value=b||''; $('#schema').value=s||'proxy'; }catch{}
-      } else {
-        // örnek doldur
-        $('#user').value = 'baris'; $('#pass').value='Helin2121';
-      }
-      readCreds();
-    };
-
-    const apiPath = () => state.schema==='proxy' ? '/api/player_api' : '/player_api';
-    const livePath = () => state.schema==='proxy' ? '/api/live' : '/live';
-
-    const buildUrl = (action, extra='') => {
-      const u = encodeURIComponent(state.user); const p = encodeURIComponent(state.pass);
-      const base = normalizeBase(state.base);
-      if(action==='m3u') return `${base}/api/get?username=${u}&password=${p}&type=m3u` + (extra||'');
-      const act = action ? `&action=${action}` : '';
-      return `${base}${apiPath()}?username=${u}&password=${p}${act}${extra||''}`;
-    };
-
-    const streamUrl = (stream_id, ext) => `${normalizeBase(state.base)}${livePath()}/${encodeURIComponent(state.user)}/${encodeURIComponent(state.pass)}/${stream_id}.${ext}`;
-
-    const fetchJSON = async (url, timeoutMs=15000) => {
+    const fetchText = async (url, timeoutMs=20000) => {
       const ctrl = new AbortController(); const t = setTimeout(()=>ctrl.abort(), timeoutMs);
       try{
-        const res = await fetch(url, {signal:ctrl.signal});
+        const res = await fetch(url, {signal: ctrl.signal});
         if(!res.ok) throw new Error(`HTTP ${res.status}`);
-        const ct = res.headers.get('content-type')||'';
-        if(ct.includes('application/json')) return await res.json();
-        const txt = await res.text();
-        try{ return JSON.parse(txt); }catch{ throw new Error('Beklenmeyen yanıt biçimi'); }
+        return await res.text();
       }finally{ clearTimeout(t); }
     };
 
-    const handleAuthFail = (obj) => {
-      if(!obj) return false;
-      const ui = obj.user_info || obj.userInfo;
-      if(ui && (ui.auth===0 || ui.status==='Disabled' || ui.message==='Authentication Failed')) return true;
-      return false;
+    // M3U parser (#EXTINF + URL)
+    const parseM3U = (txt) => {
+      const lines = txt.split(/\r?\n/);
+      const out = [];
+      let current = null;
+
+      const parseAttrs = (s) => {
+        // #EXTINF:-1 tvg-id="..." tvg-logo="..." group-title="..." , Channel Name
+        const attrs = {};
+        const attrRe = /([a-zA-Z0-9_-]+)=\"([^\"]*)\"/g;
+        let m;
+        while((m = attrRe.exec(s))){ attrs[m[1]] = m[2]; }
+        const namePart = s.split(",").slice(1).join(",").trim();
+        if(namePart) attrs.name = namePart;
+        return attrs;
+      };
+
+      for(let i=0; i<lines.length; i++){
+        const line = lines[i].trim();
+        if(!line) continue;
+        if(line.startsWith("#EXTINF")){
+          current = parseAttrs(line);
+        }else if(!line.startsWith("#")){
+          if(current){
+            current.url = line;
+            out.push(current);
+            current = null;
+          }
+        }
+      }
+      return out;
     };
 
-    const renderCats = (cats=[]) => {
-      const list = $('#catList'); list.innerHTML='';
-      cats.forEach(c=>{
-        const li = document.createElement('li');
-        li.textContent = `${c.category_name || c.name || 'Kategori'} (#${c.category_id})`;
-        li.dataset.id = c.category_id;
-        if(state.chosenCat && state.chosenCat===c.category_id) li.classList.add('active');
-        li.addEventListener('click', ()=>{ $$('li', list).forEach(x=>x.classList.remove('active')); li.classList.add('active'); state.chosenCat = c.category_id; $('#streamGrid').innerHTML=''; $('#streamCount').textContent='0 yayın'; log(`Kategori seçildi: ${c.category_name||c.name} (#${c.category_id})`); });
+    const toProxyIfXtream = (url) => {
+      if(!USE_PROXY_FOR_XTREAM) return url;
+      try{
+        // eşleme: /live/<u>/<p>/<id>.(m3u8|ts)
+        const m = url.match(/\\/live\\/([^/]+)\\/([^/]+)\\/(\\d+)\\.(m3u8|ts)/i);
+        if(m){
+          const [, u, p, id, ext] = m;
+          return `/api/live/${encodeURIComponent(u)}/${encodeURIComponent(p)}/${id}.${ext}`;
+        }
+        return url;
+      }catch{ return url; }
+    };
+
+    const renderCats = (groups, chosen) => {
+      const list = $("#catList"); list.innerHTML = "";
+      const cats = Object.keys(groups).sort((a,b)=>a.localeCompare(b));
+      cats.forEach(cat=>{
+        const li = document.createElement("li");
+        li.textContent = `${cat} (${groups[cat].length})`;
+        if(chosen && chosen===cat) li.classList.add("active");
+        li.addEventListener("click", ()=>{
+          $$("#catList li").forEach(x=>x.classList.remove("active"));
+          li.classList.add("active");
+          state.chosenCat = cat;
+          renderStreams(groups[cat]);
+          log(`Kategori seçildi: ${cat}`);
+        });
         list.appendChild(li);
       });
-      $('#catCount').textContent = cats.length;
+      $("#catCount").textContent = cats.length;
+    };
+
+    const destroyHls = ()=>{ if(hlsInst){ try{ hlsInst.destroy(); }catch{} hlsInst=null; } };
+
+    const play = (url, title="Yayın") => {
+      destroyHls();
+      if(Hls.isSupported() && url.endsWith(".m3u8")){
+        hlsInst = new Hls();
+        hlsInst.on(Hls.Events.ERROR, (_, d)=> log(`HLS hata: ${d.type}/${d.details}`, "err"));
+        hlsInst.loadSource(url); hlsInst.attachMedia(player);
+        hlsInst.on(Hls.Events.MANIFEST_PARSED, ()=> player.play().catch(()=>{}));
+      }else{
+        player.src = url; player.play().catch(()=>{});
+      }
+      log(`Oynatılıyor → ${title}\n${url}`);
     };
 
     const renderStreams = (items=[]) => {
-      const grid = $('#streamGrid'); grid.innerHTML='';
-      const q = $('#search').value.trim().toLowerCase();
-      const filtered = q? items.filter(s => (s.name||'').toLowerCase().includes(q)) : items;
+      const grid = $("#streamGrid"); grid.innerHTML = "";
+      const q = $("#search").value.trim().toLowerCase();
+      const filtered = q ? items.filter(s => (s.name||"").toLowerCase().includes(q)) : items;
+
       filtered.forEach(s=>{
-        const card = document.createElement('div');
-        card.className='stream';
+        const card = document.createElement("div");
+        card.className = "stream";
+        const logo = s["tvg-logo"] || s.tvgLogo || "";
+        const meta = `Grup: ${s["group-title"]||"-"}`;
         card.innerHTML = `
           <div class="top">
-            <img loading="lazy" src="${s.stream_icon||''}" alt="logo" onerror="this.style.visibility='hidden'" />
+            <img loading="lazy" src="${logo}" alt="logo" onerror="this.style.visibility='hidden'" />
             <div>
-              <h3>${s.name||'Yayın'}</h3>
-              <div class="meta">ID: ${s.stream_id} • Cat: ${s.category_id||'-'}</div>
+              <h3>${s.name || "Yayın"}</h3>
+              <div class="meta">${meta}</div>
             </div>
           </div>
           <div class="actions">
             <button class="btn primary playBtn">Oynat</button>
             <button class="btn soft copyBtn">Link Kopyala</button>
           </div>`;
-        card.querySelector('.playBtn').addEventListener('click', ()=>play(streamUrl(s.stream_id, $('#ext').value), s.name));
-        card.querySelector('.copyBtn').addEventListener('click', async ()=>{
-          const url = streamUrl(s.stream_id, $('#ext').value);
-          try{ await navigator.clipboard.writeText(url); log(`Kopyalandı: ${url}`, 'ok'); }catch{ log('Kopyalama başarısız', 'err'); }
+        const playUrl = toProxyIfXtream(s.url);
+        card.querySelector(".playBtn").addEventListener("click", ()=> play(playUrl, s.name));
+        card.querySelector(".copyBtn").addEventListener("click", async ()=>{
+          try{ await navigator.clipboard.writeText(playUrl); log("Kopyalandı.", "ok"); }catch{ log("Kopyalama başarısız", "err"); }
         });
         grid.appendChild(card);
       });
-      $('#streamCount').textContent = `${filtered.length} yayın`;
-      if(filtered.length) play(streamUrl(filtered[0].stream_id, $('#ext').value), filtered[0].name);
+      $("#streamCount").textContent = `${filtered.length} yayın`;
+      if(filtered.length){ const s0 = filtered[0]; play(toProxyIfXtream(s0.url), s0.name); }
     };
 
-    const destroyHls = () => { if(hlsInst){ try{ hlsInst.destroy(); }catch{} hlsInst=null; } };
+    const state = { items:[], groups:{}, chosenCat:null, m3uUrl: DEFAULT_M3U };
 
-    const play = (url, title='Yayın') => {
-      destroyHls();
-      if(Hls.isSupported() && url.endsWith('.m3u8')){
-        hlsInst = new Hls();
-        hlsInst.on(Hls.Events.ERROR, (_, data)=>{ log(`HLS hata: ${data.type} / ${data.details}`, 'err'); });
-        hlsInst.loadSource(url); hlsInst.attachMedia(player);
-        hlsInst.on(Hls.Events.MANIFEST_PARSED, ()=>{ player.play().catch(()=>{}); });
-      }else{
-        player.src = url; player.play().catch(()=>{});
-      }
-      log(`Oynatılıyor → ${title} \n${url}`);
-    };
+    const groupBy = (arr, key) => arr.reduce((a,c)=>{
+      const g = (c[key] || "Diğer").trim() || "Diğer";
+      (a[g] = a[g] || []).push(c);
+      return a;
+    }, {});
 
-    const buildTests = () => {
-      const t = $('#tests'); t.innerHTML='';
-      if(!state.user || !state.pass) return;
-      const make = (href, label) => { const a = document.createElement('a'); a.href = href; a.target='_blank'; a.rel='noopener'; a.textContent = label; t.appendChild(a); };
-      make(buildUrl('', ''), 'Player API (profil)');
-      make(buildUrl('get_live_categories'), 'Kategoriler');
-      make(buildUrl('get_live_streams'), 'Canlı listesi');
-      make(buildUrl('m3u'), 'M3U (mevcut)');
-      t.appendChild(document.createElement('div')).className='muted';
-      make(`${normalizeBase(state.base)}${apiPath()}?username=cihat&password=abi`, 'Player API (cihat/abi)');
-    };
-
-    // === Olaylar ===
-    $('#saveBtn').addEventListener('click', ()=>{ saveCreds(); buildTests(); log('Bilgiler kaydedildi. Test linkleri güncellendi.', 'ok'); });
-
-    $('#m3uBtn').addEventListener('click', ()=>{
-      readCreds();
-      if(!state.user||!state.pass){ log('Önce kullanıcı ve şifre girin.', 'err'); return; }
-      const a = document.createElement('a'); a.href = buildUrl('m3u'); a.download = `${state.user}.m3u`; a.click();
-      log('M3U indirme başlatıldı.');
-    });
-
-    $('#pingBtn').addEventListener('click', async ()=>{
-      readCreds();
-      if(!state.user||!state.pass){ log('Önce kullanıcı ve şifre girin.', 'err'); return; }
-      const url = buildUrl('');
+    const loadM3U = async (srcUrl) => {
+      $("#m3uUrl").value = srcUrl;
+      log("M3U indiriliyor…");
       try{
-        const data = await fetchJSON(url);
-        if(handleAuthFail(data)) { log('Giriş başarısız veya kullanıcı devre dışı.', 'err'); return; }
-        log('Bağlantı OK (profil bilgisi çekildi).', 'ok');
-      }catch(e){ log('Bağlantı hatası: '+e.message, 'err'); }
-    });
-
-    $('#loadCats').addEventListener('click', async ()=>{
-      readCreds();
-      if(!state.user||!state.pass){ log('Önce kullanıcı ve şifre girin.', 'err'); return; }
-      try{
-        const data = await fetchJSON(buildUrl('get_live_categories'));
-        if(handleAuthFail(data)) { log('Yetkisiz: kullanıcı/şifreyi kontrol edin.', 'err'); return; }
-        const arr = Array.isArray(data)? data : (data&&data.categories)||[];
-        state.cats = arr; renderCats(arr);
-        if(arr.length){ state.chosenCat = state.chosenCat || arr[0].category_id; renderCats(arr); }
-        log(`${arr.length} kategori yüklendi.`, 'ok');
-      }catch(e){ log('Kategori alınamadı: '+e.message, 'err'); }
-    });
-
-    $('#listAll').addEventListener('click', async ()=>{
-      readCreds();
-      if(!state.user||!state.pass){ log('Önce kullanıcı ve şifre girin.', 'err'); return; }
-      try{
-        const data = await fetchJSON(buildUrl('get_live_streams'));
-        if(handleAuthFail(data)) { log('Yetkisiz: kullanıcı/şifreyi kontrol edin.', 'err'); return; }
-        const arr = Array.isArray(data)? data : (data&&data.streams)||[];
-        state.streams = arr; renderStreams(arr);
-        log(`${arr.length} yayın listelendi (tümü).`, 'ok');
-      }catch(e){ log('Yayın listesi alınamadı: '+e.message, 'err'); }
-    });
-
-    $('#loadStreams').addEventListener('click', async ()=>{
-      readCreds();
-      if(!state.user||!state.pass){ log('Önce kullanıcı ve şifre girin.', 'err'); return; }
-      if(!state.chosenCat){ log('Kategori seçmediniz. İsterseniz "Tüm Canlıları Getir"e basabilirsiniz.', 'err'); return; }
-      try{
-        const data = await fetchJSON(buildUrl('get_live_streams', `&category_id=${encodeURIComponent(state.chosenCat)}`));
-        if(handleAuthFail(data)) { log('Yetkisiz: kullanıcı/şifreyi kontrol edin.', 'err'); return; }
-        const arr = Array.isArray(data)? data : (data&&data.streams)||[];
-        state.streams = arr; renderStreams(arr);
-        log(`${arr.length} yayın listelendi.`, 'ok');
-      }catch(e){ log('Yayın listesi alınamadı: '+e.message, 'err'); }
-    });
-
-    $('#search').addEventListener('input', ()=>renderStreams(state.streams));
-    $('#ext').addEventListener('change', ()=>log('Yayın türü değişti: '+$('#ext').value));
-
-    (function init(){
-      loadCreds();
-      buildTests();
-      $('#year').textContent = new Date().getFullYear();
-    })();
-  </script>
-</body>
-</html>
+        const txt = await fetchText(srcUrl);
+        const items = parseM3U(txt).map(x => {
+          // attribute isimlerini normalize et
+          return {
+            name: x.name || "Yayın",
+            url: x.url,
+            "tvg-id": x["tvg-id"] || x.tvgId || "",
+            "tvg-logo": x["tvg-logo"] || x.tvgLogo || "",
+            "group-title": x["group-title"] || x.group || "Diğer"
+          };
+        });
+        state.ite
