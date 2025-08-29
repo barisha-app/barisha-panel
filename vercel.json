@@ -1,8 +1,14 @@
 {
   "rewrites": [
-    { "source": "/player_api.php", "destination": "/api/player_api" },
-    { "source": "/player_api",     "destination": "/api/player_api" },
-    { "source": "/get.php",        "destination": "/api/get" },
-    { "source": "/get",            "destination": "/api/get" }
+    { "source": "/api/player_api", "destination": "https://YOUR_UPSTREAM/player_api" },
+    { "source": "/api/get",        "destination": "https://YOUR_UPSTREAM/get.php" },
+    { "source": "/api/live/:u/:p/:id.:ext", "destination": "https://YOUR_UPSTREAM/live/:u/:p/:id.:ext" },
+    { "source": "/api/live/:u/:p/:id",      "destination": "https://YOUR_UPSTREAM/live/:u/:p/:id" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [{ "key": "Access-Control-Allow-Origin", "value": "*" }]
+    }
   ]
 }
