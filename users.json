@@ -1,5 +1,5 @@
 [
   { "username": "savas",  "password": "security", "active": true, "expires": "2099-12-31", "packages": ["GENEL"] },
-  { "username": "cihat",  "password": "abi",       "active": true, "expires": "2025-08-30", "packages": ["GENEL"] },
+  { "username": "cihat",  "password": "abi",       "active": true, "expires": "2099-12-31", "packages": ["GENEL"] },
   { "username": "admin",  "password": "admin",     "active": true, "expires": "2099-12-31", "packages": ["GENEL"] }
 ]
