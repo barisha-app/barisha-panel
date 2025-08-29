@@ -1,5 +1,4 @@
 [
   { "username":"admin1","password":"admin","active":true,"expires":"2099-12-31","packages":["GENEL"] },
-  { "username":"baris1","password":"Helin2121","active":true,"expires":"2099-12-31","packages":["GENEL"] },
   { "username":"cihat1","password":"abi","active":true,"expires":"2099-12-31","packages":["GENEL"] }
 ]
