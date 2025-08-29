@@ -1,18 +1,16 @@
-import { loadM3U } from "./_m3u";
-import { auth } from "./_auth";
+import { loadM3U } from "./_m3u.js";
+import { auth } from "./_auth.js";
 
 export const config = { runtime: "edge" };
 
 export default async function handler(req) {
-  const { searchParams, host } = new URL(req.url);
-  const username = searchParams.get("username") || "";
-  const password = searchParams.get("password") || "";
-  const action = searchParams.get("action") || "";
+  const url = new URL(req.url);
+  const username = url.searchParams.get("username") || "";
+  const password = url.searchParams.get("password") || "";
+  const action = url.searchParams.get("action") || "";
 
   const user = auth(username, password);
-  if (!user) {
-    return json({ user_info: { auth: 0, status: "Blocked" } });
-  }
+  if (!user) return json({ user_info: { auth: 0, status: "Blocked" } });
 
   const items = await loadM3U();
   const groups = [...new Set(items.map(i => i.group))];
@@ -46,7 +44,7 @@ export default async function handler(req) {
       active_cons: "1"
     },
     server_info: {
-      url: host,
+      url: url.host,
       server_protocol: "https"
     },
     categories: { live: live_categories },
