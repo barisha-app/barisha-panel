@@ -1,7 +1,5 @@
-// Ortak: M3U indirme + parse + basit cache
 const SOURCE_M3U = "https://cdn.jsdelivr.net/gh/barisha-app/iptv@main/listE.m3u";
 
-// 5 dk cache
 let CACHE = { ts: 0, items: [] };
 const CACHE_MS = 5 * 60 * 1000;
 
@@ -26,7 +24,7 @@ function parseM3U(m3uText) {
       const info = l;
       const url = (lines[i + 1] || "").trim();
       i++;
-      const name = (info.match(/,(.*)$/) || [,"Channel"])[1].trim();
+      const name = (info.match(/,(.*)$/) || [, "Channel"])[1].trim();
       const tvgId = getAttr(info, "tvg-id") || "";
       const tvgLogo = getAttr(info, "tvg-logo") || "";
       const group = getAttr(info, "group-title") || "Live";
