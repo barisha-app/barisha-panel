@@ -296,4 +296,32 @@
             "group-title": x["group-title"] || x.group || "Diğer"
           };
         });
-        state.ite
+        state.items = items;
+        state.groups = groupBy(items, "group-title");
+        const firstCat = Object.keys(state.groups)[0] || null;
+        state.chosenCat = firstCat;
+        renderCats(state.groups, firstCat);
+        renderStreams(firstCat ? state.groups[firstCat] : items);
+        log(`${items.length} yayın yüklendi.`, "ok");
+      }catch(e){
+        log("M3U alınamadı: " + e.message, "err");
+      }
+    };
+
+    // --- Olaylar ---
+    $("#search").addEventListener("input", ()=> {
+      if(!state.chosenCat){ renderStreams(state.items); return; }
+      renderStreams(state.groups[state.chosenCat] || []);
+    });
+    $("#reload").addEventListener("click", ()=> loadM3U(state.m3uUrl));
+
+    // --- Başlangıç ---
+    (function init(){
+      $("#year").textContent = new Date().getFullYear();
+      const q = getParam("m3u");
+      state.m3uUrl = q ? decodeURIComponent(q) : DEFAULT_M3U;
+      loadM3U(state.m3uUrl);
+    })();
+  </script>
+</body>
+</html>
