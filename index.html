@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>BarisHA IPTV Panel</title>
   <meta name="description" content="BarisHA IPTV test paneli – M3U, Player API, kategori ve canlı yayın yönetimi" />
-  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <style>
     :root{
       --bg:#0b1020; --panel:#111831; --muted:#9db0d1; --text:#e6efff; --accent:#7c4dff; --accent-2:#43d9ad; --danger:#ff6b6b; --ok:#3ddc97;
@@ -26,7 +25,7 @@
     h1{margin:0; font-size:20px; letter-spacing:.3px}
     .sub{color:var(--muted); font-size:12px}
 
-    .grid{display:grid; grid-template-columns:280px 1fr; gap:16px; margin-top:16px}
+    .grid{display:grid; grid-template-columns:300px 1fr; gap:16px; margin-top:16px}
     @media (max-width: 900px){.grid{grid-template-columns:1fr}}
 
     .card{background:var(--panel); border:1px solid var(--border); border-radius:16px; box-shadow:var(--shadow)}
@@ -91,8 +90,13 @@
       <aside class="sidebar">
         <section class="card">
           <div class="body">
-            <h2>Giriş Bilgileri</h2>
+            <h2>Bağlantı</h2>
             <div class="row">
+              <div style="flex:1; min-width:280px">
+                <label>Sunucu URL (temel)</label>
+                <input id="base" placeholder="örn. https://sunucu.com veya boş bırak (aynı alan adını kullan)" />
+              </div>
+              <div style="width:100%"></div>
               <div style="flex:1; min-width:180px">
                 <label>Kullanıcı Adı</label>
                 <input id="user" placeholder="örn. baris" />
@@ -101,13 +105,20 @@
                 <label>Şifre</label>
                 <input id="pass" type="password" placeholder="örn. Helin2121" />
               </div>
+              <div style="flex:1; min-width:180px">
+                <label>Yol Şeması</label>
+                <select id="schema">
+                  <option value="proxy">/api/player_api (proxy)</option>
+                  <option value="direct">/player_api (doğrudan)</option>
+                </select>
+              </div>
             </div>
             <div class="row" style="margin-top:10px">
               <button class="btn primary" id="saveBtn">Kaydet & Bağlan</button>
               <button class="btn ok" id="m3uBtn">M3U İndir</button>
               <button class="btn soft" id="pingBtn">Bağlantı Testi</button>
             </div>
-            <div class="muted" style="margin-top:8px">Bilgileriniz tarayıcıda <b>localStorage</b>'da saklanır.</div>
+            <div class="muted" style="margin-top:8px">Bilgileriniz tarayıcıda <b>localStorage</b>'da saklanır. CORS sorunları için proxy modunu kullanın.</div>
           </div>
         </section>
 
@@ -116,6 +127,7 @@
             <h2>Kategoriler</h2>
             <div class="row">
               <button class="btn soft" id="loadCats">Kategorileri Getir</button>
+              <button class="btn soft" id="listAll">Tüm Canlıları Getir</button>
               <span class="pill" id="catCount">0</span>
             </div>
           </div>
@@ -125,9 +137,7 @@
         <section class="card">
           <div class="body">
             <h2>Hızlı Testler</h2>
-            <div class="test-links" id="tests">
-              <!-- Dinamik doldurulacak -->
-            </div>
+            <div class="test-links" id="tests"></div>
             <div class="muted" style="margin-top:8px">Not: Bağlı olduğu sunucuya göre yanıtlar değişebilir.</div>
           </div>
         </section>
@@ -173,15 +183,16 @@
     <div class="footer">© <span id="year"></span> BarisHA • Sadece test ve eğitim amaçlı arayüz</div>
   </div>
 
-  <!-- HLS.js sadece .m3u8 oynatmak için kullanılır -->
   <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js"></script>
   <script>
-    // ==== Yardımcılar ====
     const $ = (sel, el=document) => el.querySelector(sel);
     const $$ = (sel, el=document) => Array.from(el.querySelectorAll(sel));
+
     const logEl = $('#log');
     const player = $('#player');
-    const state = { user:'', pass:'', chosenCat:null, cats:[], streams:[], testsBuilt:false };
+    let hlsInst = null;
+
+    const state = { user:'', pass:'', base:'', schema:'proxy', chosenCat:null, cats:[], streams:[] };
 
     const log = (msg, type='') => {
       const time = new Date().toLocaleTimeString();
@@ -189,29 +200,48 @@
       logEl.innerHTML = `<div><span class="muted">[${time}]</span> <span style="color:${color}">${msg}</span></div>` + logEl.innerHTML;
     };
 
-    const saveCreds = () => {
-      state.user = $('#user').value.trim();
-      state.pass = $('#pass').value.trim();
-      localStorage.setItem('barisha_creds', JSON.stringify({u:state.user, p:state.pass}));
-      buildTests();
-    };
-
-    const loadCreds = () => {
-      const saved = localStorage.getItem('barisha_creds');
-      if(saved){
-        try{ const {u,p} = JSON.parse(saved); $('#user').value=u||''; $('#pass').value=p||''; state.user=u||''; state.pass=p||''; }catch{}
-      } else { // örnek doldur
-        $('#user').value = 'baris'; $('#pass').value='Helin2121'; state.user='baris'; state.pass='Helin2121';
+    const normalizeBase = (b) => {
+      if(!b) return location.origin; // aynı domain
+      try{ const u = new URL(b); return u.origin; }catch{ // path yazılmışsa
+        return b.replace(/\/$/, '');
       }
     };
 
-    const buildUrl = (action, extra='') => {
-      const u = encodeURIComponent(state.user); const p = encodeURIComponent(state.pass);
-      if(action==='m3u') return `/api/get?username=${u}&password=${p}&type=m3u` + (extra||'');
-      return `/api/player_api?username=${u}&password=${p}` + (action?`&action=${action}`:'') + (extra||'');
+    const readCreds = () => {
+      state.user = $('#user').value.trim();
+      state.pass = $('#pass').value.trim();
+      state.base = normalizeBase($('#base').value.trim());
+      state.schema = $('#schema').value;
     };
 
-    const streamUrl = (stream_id, ext) => `/live/${encodeURIComponent(state.user)}/${encodeURIComponent(state.pass)}/${stream_id}.${ext}`;
+    const saveCreds = () => {
+      readCreds();
+      localStorage.setItem('barisha_creds_v2', JSON.stringify({u:state.user, p:state.pass, b:$('#base').value.trim(), s:state.schema}));
+    };
+
+    const loadCreds = () => {
+      const saved = localStorage.getItem('barisha_creds_v2');
+      if(saved){
+        try{ const {u,p,b,s} = JSON.parse(saved); $('#user').value=u||''; $('#pass').value=p||''; $('#base').value=b||''; $('#schema').value=s||'proxy'; }catch{}
+      } else {
+        // örnek doldur
+        $('#user').value = 'baris'; $('#pass').value='Helin2121';
+      }
+      readCreds();
+    };
+
+    const apiPath = () => state.schema==='proxy' ? '/api/player_api' : '/player_api';
+    const livePath = () => state.schema==='proxy' ? '/api/live' : '/live';
+
+    const buildUrl = (action, extra='') => {
+      const u = encodeURIComponent(state.user); const p = encodeURIComponent(state.pass);
+      const base = normalizeBase(state.base);
+      if(action==='m3u') return `${base}/api/get?username=${u}&password=${p}&type=m3u` + (extra||'');
+      const act = action ? `&action=${action}` : '';
+      return `${base}${apiPath()}?username=${u}&password=${p}${act}${extra||''}`;
+    };
+
+    const streamUrl = (stream_id, ext) => `${normalizeBase(state.base)}${livePath()}/${encodeURIComponent(state.user)}/${encodeURIComponent(state.pass)}/${stream_id}.${ext}`;
 
     const fetchJSON = async (url, timeoutMs=15000) => {
       const ctrl = new AbortController(); const t = setTimeout(()=>ctrl.abort(), timeoutMs);
@@ -219,11 +249,17 @@
         const res = await fetch(url, {signal:ctrl.signal});
         if(!res.ok) throw new Error(`HTTP ${res.status}`);
         const ct = res.headers.get('content-type')||'';
-        if(ct.includes('application/json')){ return await res.json(); }
-        // Bazı sunucular text/json döndürebilir
+        if(ct.includes('application/json')) return await res.json();
         const txt = await res.text();
         try{ return JSON.parse(txt); }catch{ throw new Error('Beklenmeyen yanıt biçimi'); }
       }finally{ clearTimeout(t); }
+    };
+
+    const handleAuthFail = (obj) => {
+      if(!obj) return false;
+      const ui = obj.user_info || obj.userInfo;
+      if(ui && (ui.auth===0 || ui.status==='Disabled' || ui.message==='Authentication Failed')) return true;
+      return false;
     };
 
     const renderCats = (cats=[]) => {
@@ -251,7 +287,7 @@
             <img loading="lazy" src="${s.stream_icon||''}" alt="logo" onerror="this.style.visibility='hidden'" />
             <div>
               <h3>${s.name||'Yayın'}</h3>
-              <div class="meta">ID: ${s.stream_id} • Kategori: ${s.category_id||'-'}</div>
+              <div class="meta">ID: ${s.stream_id} • Cat: ${s.category_id||'-'}</div>
             </div>
           </div>
           <div class="actions">
@@ -260,19 +296,24 @@
           </div>`;
         card.querySelector('.playBtn').addEventListener('click', ()=>play(streamUrl(s.stream_id, $('#ext').value), s.name));
         card.querySelector('.copyBtn').addEventListener('click', async ()=>{
-          const url = location.origin + streamUrl(s.stream_id, $('#ext').value);
+          const url = streamUrl(s.stream_id, $('#ext').value);
           try{ await navigator.clipboard.writeText(url); log(`Kopyalandı: ${url}`, 'ok'); }catch{ log('Kopyalama başarısız', 'err'); }
         });
         grid.appendChild(card);
       });
       $('#streamCount').textContent = `${filtered.length} yayın`;
+      if(filtered.length) play(streamUrl(filtered[0].stream_id, $('#ext').value), filtered[0].name);
     };
 
+    const destroyHls = () => { if(hlsInst){ try{ hlsInst.destroy(); }catch{} hlsInst=null; } };
+
     const play = (url, title='Yayın') => {
+      destroyHls();
       if(Hls.isSupported() && url.endsWith('.m3u8')){
-        const hls = new Hls();
-        hls.loadSource(url); hls.attachMedia(player);
-        hls.on(Hls.Events.MANIFEST_PARSED, ()=>{ player.play().catch(()=>{}); });
+        hlsInst = new Hls();
+        hlsInst.on(Hls.Events.ERROR, (_, data)=>{ log(`HLS hata: ${data.type} / ${data.details}`, 'err'); });
+        hlsInst.loadSource(url); hlsInst.attachMedia(player);
+        hlsInst.on(Hls.Events.MANIFEST_PARSED, ()=>{ player.play().catch(()=>{}); });
       }else{
         player.src = url; player.play().catch(()=>{});
       }
@@ -280,38 +321,44 @@
     };
 
     const buildTests = () => {
-      if(!state.user || !state.pass) return;
       const t = $('#tests'); t.innerHTML='';
-      const make = (href, label) => {
-        const a = document.createElement('a'); a.href = href; a.target='_blank'; a.rel='noopener'; a.textContent = label; t.appendChild(a);
-      };
-      make(buildUrl('','')+``, 'Player API (profil)');
+      if(!state.user || !state.pass) return;
+      const make = (href, label) => { const a = document.createElement('a'); a.href = href; a.target='_blank'; a.rel='noopener'; a.textContent = label; t.appendChild(a); };
+      make(buildUrl('', ''), 'Player API (profil)');
       make(buildUrl('get_live_categories'), 'Kategoriler');
       make(buildUrl('get_live_streams'), 'Canlı listesi');
       make(buildUrl('m3u'), 'M3U (mevcut)');
-      // Örnek: cihat/abi sabit testi (sorun ayıklama için)
       t.appendChild(document.createElement('div')).className='muted';
-      make(`/api/player_api?username=cihat&password=abi`, 'Player API (cihat/abi)');
+      make(`${normalizeBase(state.base)}${apiPath()}?username=cihat&password=abi`, 'Player API (cihat/abi)');
     };
 
-    // ==== Olaylar ====
-    $('#saveBtn').addEventListener('click', ()=>{ saveCreds(); log('Bilgiler kaydedildi ve test linkleri güncellendi.', 'ok'); });
+    // === Olaylar ===
+    $('#saveBtn').addEventListener('click', ()=>{ saveCreds(); buildTests(); log('Bilgiler kaydedildi. Test linkleri güncellendi.', 'ok'); });
+
     $('#m3uBtn').addEventListener('click', ()=>{
+      readCreds();
       if(!state.user||!state.pass){ log('Önce kullanıcı ve şifre girin.', 'err'); return; }
       const a = document.createElement('a'); a.href = buildUrl('m3u'); a.download = `${state.user}.m3u`; a.click();
       log('M3U indirme başlatıldı.');
     });
 
     $('#pingBtn').addEventListener('click', async ()=>{
+      readCreds();
       if(!state.user||!state.pass){ log('Önce kullanıcı ve şifre girin.', 'err'); return; }
-      const url = buildUrl('get_live_categories');
-      try{ await fetchJSON(url); log('Bağlantı OK (kategoriler getirilebilir).', 'ok'); }catch(e){ log('Bağlantı hatası: '+e.message, 'err'); }
+      const url = buildUrl('');
+      try{
+        const data = await fetchJSON(url);
+        if(handleAuthFail(data)) { log('Giriş başarısız veya kullanıcı devre dışı.', 'err'); return; }
+        log('Bağlantı OK (profil bilgisi çekildi).', 'ok');
+      }catch(e){ log('Bağlantı hatası: '+e.message, 'err'); }
     });
 
     $('#loadCats').addEventListener('click', async ()=>{
+      readCreds();
       if(!state.user||!state.pass){ log('Önce kullanıcı ve şifre girin.', 'err'); return; }
       try{
         const data = await fetchJSON(buildUrl('get_live_categories'));
+        if(handleAuthFail(data)) { log('Yetkisiz: kullanıcı/şifreyi kontrol edin.', 'err'); return; }
         const arr = Array.isArray(data)? data : (data&&data.categories)||[];
         state.cats = arr; renderCats(arr);
         if(arr.length){ state.chosenCat = state.chosenCat || arr[0].category_id; renderCats(arr); }
@@ -319,11 +366,25 @@
       }catch(e){ log('Kategori alınamadı: '+e.message, 'err'); }
     });
 
-    $('#loadStreams').addEventListener('click', async ()=>{
+    $('#listAll').addEventListener('click', async ()=>{
+      readCreds();
       if(!state.user||!state.pass){ log('Önce kullanıcı ve şifre girin.', 'err'); return; }
-      if(!state.chosenCat){ log('Önce bir kategori seçin.', 'err'); return; }
+      try{
+        const data = await fetchJSON(buildUrl('get_live_streams'));
+        if(handleAuthFail(data)) { log('Yetkisiz: kullanıcı/şifreyi kontrol edin.', 'err'); return; }
+        const arr = Array.isArray(data)? data : (data&&data.streams)||[];
+        state.streams = arr; renderStreams(arr);
+        log(`${arr.length} yayın listelendi (tümü).`, 'ok');
+      }catch(e){ log('Yayın listesi alınamadı: '+e.message, 'err'); }
+    });
+
+    $('#loadStreams').addEventListener('click', async ()=>{
+      readCreds();
+      if(!state.user||!state.pass){ log('Önce kullanıcı ve şifre girin.', 'err'); return; }
+      if(!state.chosenCat){ log('Kategori seçmediniz. İsterseniz "Tüm Canlıları Getir"e basabilirsiniz.', 'err'); return; }
       try{
         const data = await fetchJSON(buildUrl('get_live_streams', `&category_id=${encodeURIComponent(state.chosenCat)}`));
+        if(handleAuthFail(data)) { log('Yetkisiz: kullanıcı/şifreyi kontrol edin.', 'err'); return; }
         const arr = Array.isArray(data)? data : (data&&data.streams)||[];
         state.streams = arr; renderStreams(arr);
         log(`${arr.length} yayın listelendi.`, 'ok');
@@ -333,9 +394,9 @@
     $('#search').addEventListener('input', ()=>renderStreams(state.streams));
     $('#ext').addEventListener('change', ()=>log('Yayın türü değişti: '+$('#ext').value));
 
-    // ==== İlk yükleme ====
     (function init(){
-      loadCreds(); buildTests();
+      loadCreds();
+      buildTests();
       $('#year').textContent = new Date().getFullYear();
     })();
   </script>
