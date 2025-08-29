@@ -16,18 +16,18 @@ export default async function handler(req) {
     const password = url.searchParams.get("password") || "";
     const action   = url.searchParams.get("action") || "";
 
-    // Auth
+    // auth
     const user = auth(username, password);
     if (!user) return json({ user_info: { auth: 0, status: "Blocked" } });
 
-    // M3U'dan kanalları çek
+    // tüm kanallar
     const items = await loadM3U();
 
-    // Kategoriler
+    // kategoriler
     const groups = [...new Set(items.map(i => i.group || "Live"))];
     const catById = (id) => groups[Number(id) - 1];
 
-    // --- Smarters'in çağırdığı aksiyonlar ---
+    // ---- Smarters uyumlu aksiyonlar ----
     if (action === "get_live_categories") {
       const arr = groups.map((g, i) => ({
         category_id: String(i + 1),
@@ -48,23 +48,23 @@ export default async function handler(req) {
         num: i + 1,
         name: c.name || `Channel ${i + 1}`,
         stream_type: "live",
-        stream_id: i + 1,
+        stream_id: i + 1,                // sanal id
         stream_icon: c.tvgLogo || "",
         epg_channel_id: c.tvgId || "",
         added: String(Math.floor(Date.now() / 1000)),
         category_id: String(groups.indexOf(c.group || "Live") + 1),
         custom_sid: "",
         tv_archive: 0,
-        direct_source: c.url
+        direct_source: c.url              // çoğu player bunu oynatır
       }));
       return json(arr);
     }
 
-    // VOD/Series beklerse boş döndür (uyumluluk)
+    // vod/series beklerse boş dön
     if (action === "get_vod_categories" || action === "get_series_categories") return json([]);
     if (action === "get_vod_streams" || action === "get_series") return json([]);
 
-    // Genel player_api (ilk login kontrolü)
+    // ilk login bilgisi
     const now = Math.floor(Date.now() / 1000);
     return json({
       user_info: {
@@ -72,7 +72,7 @@ export default async function handler(req) {
         message: "",
         auth: 1,
         status: "Active",
-        exp_date: String(now + 60 * 60 * 24 * 30), // 30 gün
+        exp_date: String(now + 60 * 60 * 24 * 30),
         is_trial: "0",
         active_cons: "0",
         created_at: String(now),
