@@ -5,5 +5,5 @@ export function auth(username, password) {
   if (!u) return null;
   if (u.active === false) return null;
   if (u.expires && new Date(u.expires).getTime() < Date.now()) return null;
-  return u; // {username, packages:[...]}
+  return u;
 }
