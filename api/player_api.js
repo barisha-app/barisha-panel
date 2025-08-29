@@ -14,10 +14,9 @@ export default async function handler(req) {
     const user = auth(username, password);
     if (!user) return json({ user_info: { auth: 0, status: "Blocked" } });
 
-    // M3U'yu yükle/parse et
+    // NOT: Şimdilik paket filtresi YOK → herkes tüm kanalları alır
     const items = await loadM3U();
 
-    // Kategoriler
     const groups = [...new Set(items.map(i => i.group || "Live"))];
     const live_categories = groups.map((g, i) => ({
       category_id: String(i + 1),
@@ -25,7 +24,6 @@ export default async function handler(req) {
       parent_id: 0
     }));
 
-    // Akışlar
     const live_streams = items.map((c, i) => ({
       num: i + 1,
       name: c.name || `Channel ${i + 1}`,
@@ -37,19 +35,12 @@ export default async function handler(req) {
       direct_source: c.url
     }));
 
-    // action'lara göre çıktı
     if (action === "get_live_categories") return json(live_categories);
     if (action === "get_live_streams")   return json(live_streams);
 
-    // genel player_api çıktısı
     return json({
-      user_info: {
-        username, password, auth: 1, status: "Active", is_trial: "0", active_cons: "1"
-      },
-      server_info: {
-        url: url.host,
-        server_protocol: url.protocol.replace(":", "")
-      },
+      user_info: { username, password, auth: 1, status: "Active", is_trial: "0", active_cons: "1" },
+      server_info: { url: url.host, server_protocol: url.protocol.replace(":", "") },
       categories: { live: live_categories },
       available_output_formats: ["m3u", "ts", "hls"],
       live_streams
