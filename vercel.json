@@ -1,14 +1,8 @@
 {
   "rewrites": [
-    { "source": "/api/m3u", "destination": "https://cdn.jsdelivr.net/gh/barishakyuz/channel-list@main/list.m3u" },
-
-    { "source": "/api/player_api", "destination": "http://YOUR_UPSTREAM/player_api.php" },
-    { "source": "/api/get",        "destination": "http://YOUR_UPSTREAM/get.php" },
-
-    { "source": "/api/live/:u/:p/:id.:ext", "destination": "http://YOUR_UPSTREAM/live/:u/:p/:id.:ext" },
-    { "source": "/api/live/:u/:p/:id",      "destination": "http://YOUR_UPSTREAM/live/:u/:p/:id" }
-  ],
-  "headers": [
-    { "source": "/(.*)", "headers": [{ "key": "Access-Control-Allow-Origin", "value": "*" }] }
+    { "source": "/player_api.php", "destination": "/api/player_api" },
+    { "source": "/player_api",     "destination": "/api/player_api" },
+    { "source": "/get.php",        "destination": "/api/get" },
+    { "source": "/get",            "destination": "/api/get" }
   ]
 }
