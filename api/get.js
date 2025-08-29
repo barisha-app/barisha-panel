@@ -9,13 +9,12 @@ export default async function handler(req) {
   const password = searchParams.get("password") || "";
   const type = (searchParams.get("type") || "").toLowerCase();
 
-  if (type !== "m3u") {
-    return new Response("type=m3u olmalı", { status: 400 });
-  }
+  if (type !== "m3u") return new Response("type=m3u olmalı", { status: 400 });
 
   const user = auth(username, password);
   if (!user) return new Response("Auth failed", { status: 401 });
 
+  // NOT: Şimdilik paket filtresi YOK → herkes tüm kanalları alır
   const items = await loadM3U();
 
   let out = "#EXTM3U\n";
@@ -25,7 +24,6 @@ export default async function handler(req) {
   }
 
   return new Response(out, {
-    status: 200,
     headers: { "Content-Type": "application/vnd.apple.mpegurl; charset=utf-8" }
   });
 }
