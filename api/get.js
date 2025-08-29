@@ -1,7 +1,7 @@
-import { loadM3U } from "./_m3u";
-import { auth } from "./_auth";
+import { loadM3U } from "./_m3u.js";
+import { auth } from "./_auth.js";
 
-export const config = { runtime: "edge" }; // hızlı
+export const config = { runtime: "edge" };
 
 export default async function handler(req) {
   const { searchParams } = new URL(req.url);
@@ -18,7 +18,6 @@ export default async function handler(req) {
 
   const items = await loadM3U();
 
-  // Basit paket mantığı: şimdilik tüm kanallar GENEL’de
   let out = "#EXTM3U\n";
   for (const ch of items) {
     out += `#EXTINF:-1 tvg-id="${ch.tvgId}" tvg-logo="${ch.tvgLogo}" group-title="${ch.group}",${ch.name}\n`;
