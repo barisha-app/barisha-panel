@@ -11,7 +11,7 @@ https://live.kwikmotion.com/waarmedialive/waarmedia.smil/waarmediapublish/waarme
 https://iko-streamline-live1.akamaized.net/RonahiTV/master_2.m3u8
 #EXTINF:-1 tvg-name="JİN TV"tvg-id="jintv.tv"tvg-logo="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTGcjfVDGw89Z2FjCtJJPbdG4ri9q2XUxbJjA&s"group-title="Kürt kanalları":http-user-agent="",Jin TV
 https://live.jintv.org/medialive/jintv.m3u8
-#EXTINF:-1 tvg-name="Kurdistan TV"tvg-id="kurdistan.tv"tvg-logo="https://upload.wikimedia.org/wikipedia/tr/thumb/1/14/Kurdistan_tv.png/320px-Kurdistan_tv.png"group-title="Kürt kanalları":http-user-agent="",Kurdistan TV
+#EXTINF:-1 tvg-name="Kurdistan TV"tvg-id="kurdistan.tv"tvg-logo="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQLVsAXiel6GNo_FpFu3JRFG6DmiWrZVT8uRg&s"group-title="Kürt kanalları":http-user-agent="",Kurdistan TV
 https://5a3ed7a72ed4b.streamlock.net/live/SMIL:myStream.smil/chunklist_w346396580_b1700000_sleng_t64MTA4MHA=.m3u8
 #EXTINF:-1 tvg-name="Rudaw TV"tvg-id="rudaw.tv"tvg-logo="https://photos.smugmug.com/Rudaw-logo/i-7WVWZvk/0/KpP92MzbzGV2SX3ftc2J6RdbjN27V7GGc6hhgG2FZ/L/unnamed-L.png"group-title="Kürt kanalları":http-user-agent="",Rudaw TV
 https://svs.itworkscdn.net/rudawlive/rudawlive.smil/rudawpublish/rudawtv_source/chunks.m3u8
