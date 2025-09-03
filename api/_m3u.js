@@ -1,10 +1,17 @@
-// Kaynak M3U: önce jsDelivr, olmazsa raw.githubusercontent fallback
-const PRIMARY  = "https://cdn.jsdelivr.net/gh/barisha-app/barisha-panel@main/kanal%20listesi/listE.m3u";
-const FALLBACK = "https://raw.githubusercontent.com/barisha-app/barisha-panel/refs/heads/main/kanal%20listesi/listE.m3u";
+// api/_m3u.js
+// Birden fazla M3U kaynağını sırayla dener (ilk çalışanı kullanır)
 
-// 5 dk cache
+const SOURCES = [
+  // 1) jsDelivr (hızlı CDN)
+  "https://cdn.jsdelivr.net/gh/barisha-app/barisha-panel@main/kanal%20listesi/listeE.m3u",
+  // 2) GitHub raw (yedek)
+  "https://raw.githubusercontent.com/barisha-app/barisha-panel/refs/heads/main/kanal%20listesi/listeE.m3u"
+  // 3) istersen buraya başka bir M3U daha ekleyebilirsin
+  // "https://...../kanallar.m3u"
+];
+
 let CACHE = { ts: 0, items: [] };
-const CACHE_MS = 5 * 60 * 1000;
+const CACHE_MS = 5 * 60 * 1000; // 5 dk cache
 
 export const config = { runtime: "edge" };
 
@@ -12,9 +19,12 @@ export async function loadM3U() {
   const now = Date.now();
   if (now - CACHE.ts < CACHE_MS && CACHE.items.length) return CACHE.items;
 
-  let text = await safeFetch(PRIMARY);
-  if (!text) text = await safeFetch(FALLBACK);
-  if (!text) throw new Error("M3U indirilemedi (primary + fallback)");
+  let text = null;
+  for (const url of SOURCES) {
+    const t = await safeFetch(url);
+    if (t) { text = t; break; }
+  }
+  if (!text) throw new Error("Hiçbir M3U kaynağı okunamadı");
 
   const items = parseM3U(text);
   CACHE = { ts: now, items };
@@ -23,50 +33,37 @@ export async function loadM3U() {
 
 async function safeFetch(url) {
   try {
-    const res = await fetch(url);
+    const res = await fetch(url, { cache: "no-store", headers: { "Cache-Control": "no-cache" } });
     if (!res.ok) return null;
     return await res.text();
-  } catch {
-    return null;
-  }
+  } catch { return null; }
 }
 
-// Sağlam parser: #EXTINF satırından sonra gelen ilk "boş olmayan ve # ile başlamayan"
-// satırı URL olarak alır. Araya #EXTVLCOPT vs. girse bile çalışır.
-function parseM3U(m3uText) {
-  const lines = m3uText.split(/\r?\n/);
+// Basit bir M3U satır ayrıştırıcı (senin mevcut fonksiyonunla aynı rol)
+function parseM3U(text) {
+  const lines = text.split(/\r?\n/);
   const out = [];
+  let meta = null;
 
-  for (let i = 0; i < lines.length; i++) {
-    const l = (lines[i] || "").trim();
-    if (!l || !l.startsWith("#EXTINF")) continue;
-
-    const info = l;
-
-    const name = ((info.match(/,(.*)$/) || [, "Channel"])[1] || "Channel").trim();
-    const tvgId   = getAttr(info, "tvg-id")    || "";
-    const tvgLogo = getAttr(info, "tvg-logo")  || "";
-    const group   = getAttr(info, "group-title") || "Live";
-
-    // URL bul
-    let url = "";
-    let j = i + 1;
-    while (j < lines.length) {
-      const cand = (lines[j] || "").trim();
-      j++;
-      if (!cand) continue;           // boş satırları atla
-      if (cand.startsWith("#")) continue; // meta satırları (#...) atla
-      url = cand;
-      break;
+  for (const line of lines) {
+    if (!line) continue;
+    if (line.startsWith("#EXTINF")) {
+      meta = line;
+      continue;
     }
-    i = j - 1;
-
-    if (url) out.push({ name, url, tvgId, tvgLogo, group });
+    if (!line.startsWith("#") && meta) {
+      // Basit çıkarım: name, group, logo
+      const nameMatch  = meta.match(/,(.*)$/);
+      const logoMatch  = meta.match(/tvg-logo="([^"]*)"/);
+      const groupMatch = meta.match(/group-title="([^"]*)"/);
+      out.push({
+        name:  nameMatch ? nameMatch[1].trim() : "No Name",
+        group: groupMatch ? groupMatch[1] : "Genel",
+        logo:  logoMatch ? logoMatch[1] : "",
+        url:   line.trim()
+      });
+      meta = null;
+    }
   }
   return out;
-}
-
-function getAttr(extinf, key) {
-  const m = extinf.match(new RegExp(`${key}="([^"]*)"`));
-  return m ? m[1] : null;
 }
