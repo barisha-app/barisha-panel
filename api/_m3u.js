@@ -1,6 +1,6 @@
 // Kaynak M3U: önce jsDelivr, olmazsa raw.githubusercontent fallback
-const PRIMARY  = "https://cdn.jsdelivr.net/gh/barisha-app/iptv@main/listE.m3u";
-const FALLBACK = "https://raw.githubusercontent.com/barisha-app/iptv/main/listE.m3u";
+const PRIMARY  = "https://cdn.jsdelivr.net/gh/barisha-app/barisha-panel@main/kanal%20listesi/listE.m3u";
+const FALLBACK = "https://raw.githubusercontent.com/barisha-app/barisha-panel/refs/heads/main/kanal%20listesi/listE.m3u";
 
 // 5 dk cache
 let CACHE = { ts: 0, items: [] };
