@@ -1,7 +1,7 @@
 [
   { "username": "savas",  "password": "security", "active": true, "expires": "2099-12-31", "packages": ["GENEL"] },
-  { "username": "barisha",  "password": "tr",       "active": true, "expires": "2099-12-31", "packages": ["GENEL"] },
-  { "username": "test",  "password": "12345",       "active": true, "expires": "2099-12-31", "packages": ["GENEL"] },
-  { "username": "cihat",  "password": "hakkari",       "active": true, "expires": "2099-12-31", "packages": ["GENEL"] },
-  { "username": "admin",  "password": "admin",     "active": true, "expires": "2099-12-31", "packages": ["GENEL"] }
+  { "username": "barisha",  "password": "tr","active": true, "expires": "2099-12-31", "packages": ["GENEL"] },
+  { "username": "test",  "password": "12345","active": true, "expires": "2099-12-31", "packages": ["GENEL"] },
+  { "username": "cihat",  "password": "hakkari","active": true, "expires": "2099-12-31", "packages": ["GENEL"] },
+  { "username": "admin",  "password": "admin","active": true, "expires": "2099-12-31", "packages": ["GENEL"] }
 ]
