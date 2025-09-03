@@ -132,21 +132,21 @@ https://edge1.socialsmart.tv/turkhaber/bant1/playlist.m3u8
   {
     "title": "Baba (1972)",
     "group": "Filmler",
-    "type": "direct",
+    "type": "film",
     "logo": "https://www.hdfilmizle.to/v/13292/poster/watch-lg/baba.webp",
     "url": "https://p2.photostack.net/v/dvmbvaym38yp/1080.m3u8"
   },
   {
     "title": "Baba 2 (1974)",
     "group": "Filmler",
-    "type": "direct",
+    "type": "series",
     "logo": "https://www.hdfilmizle.to/v/200/poster/watch-lg/the-godfather-2-baba-hd-izlex.webp",
     "url": "https://vs2.photofunny.org/ma/qKq6ZTAbLKIzMKOid0zxpTuiqT9zqJ5hrF5ipzps0xi2vr1bsd"
   },
   {
     "title": "Schindler'in Listesi (1993)",
     "group": "Filmler",
-    "type": "direct",
+    "type": "movies",
     "logo": "https://www.hdfilmizle.to/v/222/poster/watch-lg/schindlerin-listesi-hd-izle.webp",
     "url": "https://vs2.photostack.net/m2/M3x5n3E1L3V2qJgkd0zxpTuiqT9mqTSwnl5hMKDs0xi2vr1bhd"
   }
