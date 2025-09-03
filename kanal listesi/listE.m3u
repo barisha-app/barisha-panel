@@ -108,9 +108,3 @@ https://tv.ensonhaber.com/benguturk/benguturk_720p.m3u8
 #EXTINF:-1 tvg-name="TURKHABER"tvg-id="TurkHaberTV.tr"tvg-logo="https://i.ibb.co/ySv65wg/turk-haber.png"group-title="HABER":http-user-agent="",TURKHABER
 https://edge1.socialsmart.tv/turkhaber/bant1/playlist.m3u8
 #EXTM3U
-
-#EXTINF:-1 tvg-id="" tvg-name="Feyenoord - Fenerbahçe" tvg-logo="https://upload.wikimedia.org/wikipedia/tr/7/77/Fenerbah%C3%A7e_SK.png" group-title="Maçlar", Feyenoord - Fenerbahçe
-https://rr3---sn-u0g3uxax3-pnue7.googlevideo.com/videoplayback?expire=1756939186&ei=Um-4aOn1K9PU6dsPvajlmA8&ip=85.108.142.32&id=o-AJ6Ae7uATOqos206OB9YdLq6svoHGsP0c__KLDXcwQuZ&itag=18&source=youtube&requiressl=yes&xpc=EgVo2aDSNQ%3D%3D&met=1756917586%2C&mh=Lt&mm=31%2C29&mn=sn-u0g3uxax3-pnue7%2Csn-nv47lns6&ms=au%2Crdu&mv=m&mvi=3&pcm2cms=yes&pl=24&rms=au%2Cau&gcr=tr&initcwndbps=1562500&bui=AY1jyLMRrLMjFkkzlKw06-D5-5aRMsp19zL6IWa5qxckJoRxMzIU45D1XVAxE9ytK5zQYY5aMXKAlzaZ&spc=l3OVKfga6kTppEOTtC9t&vprv=1&svpuc=1&mime=video%2Fmp4&ns=1xp8HNsogMoRUC9ZOyMqDAgQ&rqh=1&gir=yes&clen=29433409&ratebypass=yes&dur=326.054&lmt=1754542076755646&mt=1756917247&fvip=3&fexp=51552689%2C51565115%2C51565681%2C51580968&c=TVHTML5_SIMPLY&sefc=1&txp=5538534&n=i1VcTaiUXfi_hQ&sparams=expire%2Cei%2Cip%2Cid%2Citag%2Csource%2Crequiressl%2Cxpc%2Cgcr%2Cbui%2Cspc%2Cvprv%2Csvpuc%2Cmime%2Cns%2Crqh%2Cgir%2Cclen%2Cratebypass%2Cdur%2Clmt&sig=AJfQdSswRQIhAL2tw9UigNhlhKSwCL8426pk_9nxvwDEwNFX3_m7MY5JAiAj7nNFA0h5V5UMo1sE5vyEftuYoN7i0a30F9WTPHLuwQ%3D%3D&lsparams=met%2Cmh%2Cmm%2Cmn%2Cms%2Cmv%2Cmvi%2Cpcm2cms%2Cpl%2Crms%2Cinitcwndbps&lsig=APaTxxMwRQIgG3kEiD51nBkF-786Uc1_bcPkcqCFkF7hlbuQ83IsXt4CIQCGIxIFlgwhEUNZOZGf8qJCilIbNyR2uBv8BPtlaU0vBQ%3D%3D
-
-#EXTINF:-1 tvg-id="" tvg-name="Aşk Tuzağı" tvg-logo="https://i.imgur.com/xyz.png" group-title="Filmler", Aşk Tuzağı
-https://vctplay.site/manifests/ZRn2luxp_IHj/master.m3u8
