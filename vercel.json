@@ -2,7 +2,22 @@
   "rewrites": [
     { "source": "/player_api.php", "destination": "/api/player_api" },
     { "source": "/player_api",     "destination": "/api/player_api" },
-    { "source": "/get.php",        "destination": "/api/get" },
-    { "source": "/get",            "destination": "/api/get" }
+    { "source": "/get.php",        "destination": "/api/get"        },
+    { "source": "/get",            "destination": "/api/get"        },
+
+    /* 👇 BUNU EKLE: .m3u kısa yolu */
+    { "source": "/movies.m3u",     "destination": "/api/movies_m3u" }
+  ],
+
+  /* 👇 (İsteğe bağlı ama Smarters için iyi olur) */
+  "headers": [
+    {
+      "source": "/movies.m3u",
+      "headers": [
+        { "key": "Content-Type",        "value": "audio/x-mpegurl; charset=utf-8" },
+        { "key": "Content-Disposition", "value": "inline; filename=\"movies.m3u\"" },
+        { "key": "Cache-Control",       "value": "s-maxage=60, stale-while-revalidate=300" }
+      ]
+    }
   ]
 }
