@@ -107,3 +107,10 @@ https://mn-nl.mncdn.com/tvnet/tvnet/playlist.m3u8
 https://tv.ensonhaber.com/benguturk/benguturk_720p.m3u8
 #EXTINF:-1 tvg-name="TURKHABER"tvg-id="TurkHaberTV.tr"tvg-logo="https://i.ibb.co/ySv65wg/turk-haber.png"group-title="HABER":http-user-agent="",TURKHABER
 https://edge1.socialsmart.tv/turkhaber/bant1/playlist.m3u8
+#EXTM3U
+
+#EXTINF:-1 tvg-id="" tvg-name="Feyenoord - Fenerbahçe (YouTube)" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/3/36/YouTube_icon.png" group-title="Maçlar", Feyenoord - Fenerbahçe
+https://YOUTUBE_STREAM_LINK.m3u8
+
+#EXTINF:-1 tvg-id="" tvg-name="Aşk Tuzağı" tvg-logo="https://i.imgur.com/xyz.png" group-title="Filmler", Aşk Tuzağı
+https://vctplay.site/manifests/ZRn2luxp_IHj/master.m3u8
