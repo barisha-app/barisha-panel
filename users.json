@@ -1,7 +1,0 @@
-[
-  { "username": "savas",  "password": "security", "active": true, "expires": "2099-12-31", "packages": ["GENEL"] },
-  { "username": "cihatb",  "password": "abis",       "active": true, "expires": "2099-12-31", "packages": ["GENEL"] },
-  { "username": "cihat",  "password": "hakkari",       "active": true, "expires": "2099-12-31", "packages": ["GENEL"] },
-  { "username": "cihats",  "password": "hakkari",       "active": true, "expires": "2099-12-31", "packages": ["GENEL"] },
-  { "username": "admin",  "password": "admin",     "active": true, "expires": "2099-12-31", "packages": ["GENEL"] }
-]
