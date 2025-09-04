@@ -2,7 +2,11 @@
   "rewrites": [
     { "source": "/player_api.php", "destination": "/api/player_api" },
     { "source": "/player_api",     "destination": "/api/player_api" },
-    { "source": "/get.php",        "destination": "/api/get" },
-    { "source": "/get",            "destination": "/api/get" }
+
+    { "source": "/get.php", "destination": "/api/get" },
+    { "source": "/get",     "destination": "/api/get" },
+
+    { "source": "/list.m3u", "destination": "/api/get?username=cihat&password=hakkari&type=m3u" },
+    { "source": "/vod.m3u",  "destination": "/api/get?username=cihat&password=hakkari&type=vod" }
   ]
 }
