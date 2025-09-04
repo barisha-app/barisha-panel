@@ -1,96 +1,65 @@
-// api/get.js
-import loadM3U from "./_m3u.js";
-import auth from "./_auth.js";
+// barisha-panel/api/get.js
+
+import { loadM3U } from "./_m3u.js";           // canlı kanal listesi (kanal listesi/listE.m3u)
+import { loadMovies } from "./movies_m3u.js";  // VOD listesi (barisha-playlist/playlist.json)
+import { auth } from "./_auth.js";
 
 export const config = { runtime: "edge" };
 
-// Movies JSON (repo kökündeki movies.json)
-// İstersen jsDelivr de kullanabilirsin; şimdilik raw kesin çalışır.
-const MOVIES_URL =
-  "https://raw.githubusercontent.com/barisha-app/barisha-panel/main/movies.json";
-
-// M3U içinde güvenli olsun diye ufak kaçış
-function esc(s = "") {
-  return String(s).replace(/"/g, '\\"');
-}
-
+/**
+ * Kullanım:
+ *  Kanallar:  /get?username=U&password=P&type=m3u
+ *  Filmler:   /get?username=U&password=P&type=vod
+ *  (İsteğe bağlı) sadece bir grubu döndür: &group=Filmler
+ */
 export default async function handler(req) {
-  const url = new URL(req.url);
-  const username = (url.searchParams.get("username") || "").trim();
-  const password = (url.searchParams.get("password") || "").trim();
-  const type = (url.searchParams.get("type") || "m3u").toLowerCase();
+  const { searchParams } = new URL(req.url);
 
-  // Sadece m3u veriyoruz (Smarters bunu bekliyor)
-  if (type !== "m3u") {
-    return new Response("type=m3u olmalı", { status: 400 });
-  }
+  const username = (searchParams.get("username") || "").trim();
+  const password = (searchParams.get("password") || "").trim();
+  const type     = (searchParams.get("type") || "m3u").toLowerCase();
+  const onlyGrp  = (searchParams.get("group") || "").trim(); // opsiyonel filtre
 
-  // Kullanıcı doğrula
+  // --- kimlik doğrulama
   const user = auth(username, password);
-  if (!user || user.active === false) {
-    return new Response("Auth failed", { status: 401 });
+  if (!user) return new Response("Auth failed", { status: 401 });
+
+  // --- veri yükle
+  let items = [];
+  if (type === "m3u") {
+    items = await loadM3U();
+  } else if (type === "vod") {
+    if (!user.vod) return new Response("Unauthorized for VOD", { status: 403 });
+    items = await loadMovies();
+  } else {
+    return new Response("Invalid type", { status: 400 });
   }
 
-  // 1) Kanalları yükle
-  let channels = [];
-  try {
-    channels = await loadM3U(); // _m3u.js -> items[]
-  } catch (e) {
-    return new Response("Kanal listesi yüklenemedi", { status: 500 });
+  // --- isteğe bağlı grup filtresi
+  if (onlyGrp) {
+    const g = onlyGrp.toLowerCase();
+    items = items.filter((it) => (it.group || "").toLowerCase() === g);
   }
 
-  // 2) Kullanıcı VOD yetkiliyse filmleri çek
-  let movies = [];
-  if (user.vod === true) {
-    try {
-      const r = await fetch(MOVIES_URL, { cache: "no-store" });
-      if (r.ok) movies = await r.json();
-    } catch (_) {
-      // sessiz geç; filmler gelmezse kanallar yine çalışsın
-    }
+  // --- M3U çıktısı
+  let out = "#EXTM3U\n";
+  for (const it of items) {
+    const title = (it.title || it.name || "").replace(/"/g, '\\"');
+    if (!title) continue;
+
+    const group = (it.group || "Genel").replace(/"/g, '\\"');
+    const logo  = (it.logo  || "").replace(/"/g, '\\"');
+    const url   = (it.url   || it.stream || "").trim();
+    if (!url) continue;
+
+    out += `#EXTINF:-1 tvg-id="" tvg-logo="${logo}" group-title="${group}",${title}\n${url}\n`;
   }
 
-  // 3) Tek M3U üret
-  const lines = ["#EXTM3U"];
-
-  // Kanallar
-  for (const ch of channels) {
-    const name = ch.name || ch.title || "Channel";
-    const logo = ch.tvgLogo || ch.logo || "";
-    const group = ch.group || "TV";
-    const urlStr = ch.url || ch.streamUrl || "";
-
-    lines.push(
-      `#EXTINF:-1 tvg-id="${esc(ch.tvgId || "")}" tvg-name="${esc(
-        name
-      )}" tvg-logo="${esc(logo)}" group-title="${esc(group)}", ${esc(name)}`
-    );
-    lines.push(urlStr);
-  }
-
-  // Filmler (VOD)
-  for (const mv of movies) {
-    const title = mv.title || "Film";
-    const logo = mv.logo || "";
-    const group = mv.group || "Filmler";
-    const urlStr = mv.url || "";
-
-    lines.push(
-      `#EXTINF:-1 tvg-id="" tvg-name="${esc(title)}" tvg-logo="${esc(
-        logo
-      )}" group-title="${esc(group)}", ${esc(title)}`
-    );
-    lines.push(urlStr);
-  }
-
-  // 4) Yanıt
-  return new Response(lines.join("\n"), {
+  return new Response(out, {
     headers: {
-      "Content-Type": "application/vnd.apple.mpegurl; charset=utf-8",
-      // İstersen indirme tetiklenmesin diye 'inline' tutuyoruz
-      "Content-Disposition": 'inline; filename="playlist.m3u"',
-      // Smarters hızlı güncellesin
-      "Cache-Control": "no-store",
+      // Smarters bu içeriği en sorunsuz bununla algılıyor
+      "Content-Type": "audio/x-mpegurl; charset=utf-8",
+      "Cache-Control": "no-store, max-age=0",
     },
   });
 }
