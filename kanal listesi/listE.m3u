@@ -11,6 +11,8 @@ https://live.kwikmotion.com/waarmedialive/waarmedia.smil/waarmediapublish/waarme
 https://iko-streamline-live1.akamaized.net/RonahiTV/master_2.m3u8
 #EXTINF:-1 tvg-name="JİN TV"tvg-id="jintv.tv"tvg-logo="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTGcjfVDGw89Z2FjCtJJPbdG4ri9q2XUxbJjA&s"group-title="Kürt kanalları":http-user-agent="",Jin TV
 https://live.jintv.org/medialive/jintv.m3u8
+#EXTINF:-1 tvg-name="Channel 8 Kurdi"tvg-id="Channel8.iq"tvg-logo="https://pbs.twimg.com/profile_images/1745148300179763200/T7diDBW0_200x200.jpg"group-title="Kürt kanalları":http-user-agent="",Channel 8 Kurdi
+https://live.channel8.com/Channel8-Kurdish/index.fmp4.m3u8
 #EXTINF:-1 tvg-name="Kurdistan TV"tvg-id="kurdistan.tv"tvg-logo="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQLVsAXiel6GNo_FpFu3JRFG6DmiWrZVT8uRg&s"group-title="Kürt kanalları":http-user-agent="",Kurdistan TV
 https://5a3ed7a72ed4b.streamlock.net/live/SMIL:myStream.smil/chunklist_w346396580_b1700000_sleng_t64MTA4MHA=.m3u8
 #EXTINF:-1 tvg-name="Rudaw TV"tvg-id="rudaw.tv"tvg-logo="https://photos.smugmug.com/Rudaw-logo/i-7WVWZvk/0/KpP92MzbzGV2SX3ftc2J6RdbjN27V7GGc6hhgG2FZ/L/unnamed-L.png"group-title="Kürt kanalları":http-user-agent="",Rudaw TV
@@ -25,8 +27,6 @@ https://media2.streambrothers.com:1936/8218/8218/chunklist_w1886713773.m3u8
 http://54.36.110.140/live3/live3.m3u8
 #EXTINF:-1 tvg-name="afarinTV"tvg-id="afarin.tv"tvg-logo="https://cdn6.aptoide.com/imgs/d/2/1/d21a4095367a175e86e5e30f5dd57f5a_icon.png"group-title="Kürt kanalları":http-user-agent="",afarinTV
 https://5dcabf026b188.streamlock.net/afarinTV/livestream/playlist.m3u8
-#EXTINF:-1 tvg-name="Channel 8 Kurdi"tvg-id="Channel8.iq"tvg-logo="https://pbs.twimg.com/profile_images/1745148300179763200/T7diDBW0_200x200.jpg"group-title="Kürt kanalları":http-user-agent="",Channel 8 Kurdi
-https://live.channel8.com/Channel8-Kurdish/index.fmp4.m3u8
 #EXTINF:-1 tvg-name="Kurdsat News"tvg-id="KurdsatNews.iq"tvg-logo="https://ikomg.com/wp-content/uploads/2023/12/Images-for-web-37-800x470.png"group-title="Kürt kanalları":http-user-agent="",Kurdsat News
 https://iko-streamline-live1.akamaized.net/KurdsatNews/master.m3u8
 #EXTINF:-1 tvg-name="KurdMax Show"tvg-id="KurdMaxShow.iq"tvg-logo="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRKTdj-meyrQcly_wEVQBbHSc9YtqyQlzfMig&s"group-title="Kürt kanalları":http-user-agent="",KurdMax Show
