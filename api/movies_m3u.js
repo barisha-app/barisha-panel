@@ -1,69 +1,39 @@
-// barisha-panel/api/movies_m3u.js
+// api/movies_m3u.js
+// VOD (filmler) için JSON playlist'ini okur ve kanalla aynı formata getirir
 
-// Kaynak: önce jsDelivr, olmazsa raw.githubusercontent fallback
-const PRIMARY =
-  "https://cdn.jsdelivr.net/gh/barisha-app/barisha-playlist@main/playlist.json";
-const FALLBACK =
+const MOVIES_URL =
   "https://raw.githubusercontent.com/barisha-app/barisha-playlist/main/playlist.json";
 
-// 5 dk hafıza cache
-let CACHE = { ts: 0, items: [] };
-const CACHE_MS = 5 * 60 * 1000;
+// 5 dk cache
+let MCACHE = { ts: 0, items: [] };
+const MCACHE_MS = 5 * 60 * 1000;
 
 export const config = { runtime: "edge" };
 
-/**
- * playlist.json -> [{ title, group, type, logo, url }, ...]
- * sadece geçerli (url’i olan) öğeleri döndürür
- */
 export async function loadMovies() {
   const now = Date.now();
-  if (now - CACHE.ts < CACHE_MS && CACHE.items.length) return CACHE.items;
+  if (now - MCACHE.ts < MCACHE_MS && MCACHE.items.length) return MCACHE.items;
 
-  // metni çek
-  let text = await safeFetch(PRIMARY);
-  if (!text) text = await safeFetch(FALLBACK);
-  if (!text) throw new Error("playlist.json alınamadı (primary + fallback)");
+  const res = await fetch(MOVIES_URL, {
+    cache: "no-store",
+    headers: { "Cache-Control": "no-cache" },
+  });
 
-  // parse
-  let data;
-  try {
-    data = JSON.parse(text);
-  } catch (e) {
-    throw new Error("playlist.json geçersiz JSON");
-  }
-  if (!Array.isArray(data)) throw new Error("playlist.json dizi değil");
+  if (!res.ok) throw new Error(`Movies JSON çekilemedi: ${res.status}`);
+  const arr = await res.json();
 
-  // normalize -> panelin beklediği alanlar
-  const items = data
-    .map((it) => {
-      const title = (it.title || "").trim();
-      const group = (it.group || "Filmler").trim();
-      const logo = (it.logo || "").trim();
-      const url = (it.url || "").trim();
-      // type "direct" / "m3u8" vb olabilir; burada hepsini geçirelim,
-      // istersen sadece direct/m3u8 filtrelersin
-      if (!title || !url) return null;
+  // beklenen şekil:
+  // [{title, group, type, logo, url}]
+  const norm = Array.isArray(arr)
+    ? arr.map((it) => ({
+        title: it.title || "Video",
+        group: it.group || "Filmler",
+        type: (it.type || "direct").toLowerCase(),
+        logo: it.logo || "",
+        url: it.url || "",
+      }))
+    : [];
 
-      return {
-        title,
-        group,
-        logo: logo || null,
-        url,
-      };
-    })
-    .filter(Boolean);
-
-  CACHE = { ts: now, items };
-  return items;
-}
-
-async function safeFetch(url) {
-  try {
-    const r = await fetch(url, { cache: "no-store", headers: { "Cache-Control": "no-cache" } });
-    if (!r.ok) return null;
-    return await r.text();
-  } catch {
-    return null;
-  }
+  MCACHE = { ts: now, items: norm };
+  return norm;
 }
