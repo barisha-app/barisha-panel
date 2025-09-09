@@ -3,6 +3,7 @@
     { "source": "/player_api.php", "destination": "/api/player_api" },
     { "source": "/get.php", "destination": "/api/get" },
     { "source": "/list.m3u", "destination": "/api/_m3u" },
-    { "source": "/vod.m3u", "destination": "/api/movies_m3u" }
+    { "source": "/vod.m3u", "destination": "/api/movies_m3u" },
+    { "source": "/stream", "destination": "/api/stream" }
   ]
 }
