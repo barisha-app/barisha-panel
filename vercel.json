@@ -1,14 +1,8 @@
 {
   "rewrites": [
+    { "source": "/player_api.php", "destination": "/api/player_api" },
     { "source": "/get.php", "destination": "/api/get" },
-
-    // Temiz .m3u URL (query string ile)
-    { "source": "/list.m3u", "destination": "/api/get" },
-
-    // En uyumlu format: /m/<kullanıcı>/<şifre>/list.m3u
-    {
-      "source": "/m/:username/:password/list.m3u",
-      "destination": "/api/get?username=:username&password=:password&type=m3u"
-    }
+    { "source": "/list.m3u", "destination": "/api/_m3u" },
+    { "source": "/vod.m3u", "destination": "/api/movies_m3u" }
   ]
 }
