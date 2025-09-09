@@ -1,7 +1,9 @@
 [
   { "username": "savas",  "password": "security", "active": true, "expires": "2099-12-31", "packages": ["GENEL"], "vod": false },
-  { "username": "test",   "password": "12345",    "active": true, "expires": "2099-12-31", "packages": ["GENEL"], "vod": false },
+  { "username": "birisi", "password": "12345",    "active": true, "expires": "2099-12-31", "packages": ["GENEL"], "vod": false },
+  { "username": "admin",  "password": "admin",    "active": true, "expires": "2099-12-31", "packages": ["GENEL"], "vod": false },
   { "username": "cihat",  "password": "hakkari",  "active": true, "expires": "2099-12-31", "packages": ["GENEL"], "vod": true  },
-  { "username": "cihats", "password": "hakkaris", "active": true, "expires": "2099-12-31", "packages": ["GENEL"], "vod": true  },
-  { "username": "admin",  "password": "admin",    "active": true, "expires": "2099-12-31", "packages": ["GENEL"], "vod": false }
+  { "username": "baris",  "password": "helin",    "active": true, "expires": "2099-12-31", "packages": ["GENEL"], "vod": true  },
+  { "username": "test",   "password": "hakkaris", "active": true, "expires": "2099-12-31", "packages": ["GENEL"], "vod": true  },
+  { "username": "test2",  "password": "deneme2",  "active": true, "expires": "2099-12-31", "packages": ["GENEL"], "vod": true }
 ]
