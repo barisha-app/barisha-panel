@@ -1,58 +1,42 @@
-// api/_m3u.js
-// Kanal M3U kaynağını indirir ve satırları diziye çevirir
-
-// Barış'ın repo yoluna göre iki kaynak:
-const PRIMARY =
+// listE.m3u -> [{ title, logo, group, url }]
+const PRIMARY  =
   "https://cdn.jsdelivr.net/gh/barisha-app/barisha-panel@main/kanal%20listesi/listE.m3u";
 const FALLBACK =
   "https://raw.githubusercontent.com/barisha-app/barisha-panel/refs/heads/main/kanal%20listesi/listE.m3u";
 
-// 5 dk cache (fonksiyon içi)
-let CACHE = { ts: 0, items: [] };
-const CACHE_MS = 5 * 60 * 1000;
-
-export const config = { runtime: "edge" };
-
-export async function loadM3U() {
-  const now = Date.now();
-  if (now - CACHE.ts < CACHE_MS && CACHE.items.length) return CACHE.items;
-
-  let text = await safeFetch(PRIMARY);
-  if (!text) text = await safeFetch(FALLBACK);
-  if (!text) throw new Error("M3U indirilemedi (primary + fallback)");
-
-  const items = parseM3U(text);
-  CACHE = { ts: now, items };
-  return items;
-}
-
 async function safeFetch(url) {
-  try {
-    const res = await fetch(url, { cache: "no-store" });
-    if (!res.ok) return "";
-    return await res.text();
-  } catch {
-    return "";
-  }
+  const r = await fetch(url, { cache: "no-store", headers: { "Cache-Control": "no-cache" } });
+  if (!r.ok) throw new Error(`fetch ${r.status}`);
+  return await r.text();
 }
 
 function parseM3U(text) {
-  const lines = text.split(/\r?\n/);
   const out = [];
-  let meta = null;
+  const lines = text.split(/\r?\n/);
+  for (let i = 0; i < lines.length; i++) {
+    const L = lines[i].trim();
+    if (!L.startsWith("#EXTINF")) continue;
 
-  for (const ln of lines) {
-    if (ln.startsWith("#EXTINF")) {
-      // #EXTINF:-1 tvg-id="" tvg-name="TRT 1" group-title="Ulusal", TRT 1
-      meta = ln;
-    } else if (!!meta && ln && !ln.startsWith("#")) {
-      const title = (meta.match(/,(.*)$/) || [,""])[1].trim();
-      const group =
-        (meta.match(/group-title="([^"]*)"/) || [,""])[1] || "Kanallar";
-      const logo = (meta.match(/tvg-logo="([^"]*)"/) || [,""])[1] || "";
-      out.push({ title, group, logo, url: ln, type: "direct" });
-      meta = null;
-    }
+    // #EXTINF:-1 tvg-logo="..." group-title="...",Title
+    const logo  = (L.match(/tvg-logo="([^"]*)"/i) || [,""])[1];
+    const group = (L.match(/group-title="([^"]*)"/i) || [,"Kanallar"])[1];
+    const title = (L.split(",")[1] || "Kanal").trim();
+
+    // sonraki satır URL
+    const url = (lines[i + 1] || "").trim();
+    if (!url || url.startsWith("#")) continue;
+
+    out.push({ title, logo, group, url });
   }
   return out;
+}
+
+export async function loadM3U() {
+  let txt;
+  try {
+    txt = await safeFetch(PRIMARY);
+  } catch {
+    txt = await safeFetch(FALLBACK);
+  }
+  return parseM3U(txt);
 }
