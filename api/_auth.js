@@ -6,5 +6,10 @@ export function auth(username, password) {
   if (!u) return null;
   if (u.active === false) return null;
   if (u.expires && new Date(u.expires).getTime() < Date.now()) return null;
-  return u; // { username, packages:[...], ... }
+  return u; // { username, packages:[...], customPlaylist, ... }
+}
+
+/** kullanıcıya özel playlist URL'sini döndürür */
+export function getUserPlaylist(user) {
+  return user.customPlaylist || "https://cdn.jsdelivr.net/gh/barisha-app/barisha-panel@main/kanal%20listesi/listE.m3u";
 }
