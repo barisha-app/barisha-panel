@@ -14,16 +14,23 @@ export default async function handler(req) {
   const user = auth(username, password);
   if (!user) return new Response("Auth failed", { status: 401 });
 
-  // not: şimdilik tüm kullanıcılara tüm kanallar veriliyor (paket filtresi yok)
-  const items = await loadM3U();
+  try {
+    // Kullanıcıya özel M3U yükle
+    const items = await loadM3U(user);
 
-  let out = "#EXTM3U\n";
-  for (const ch of items) {
-    out += `#EXTINF:-1 tvg-id="${ch.tvgId}" tvg-logo="${ch.tvgLogo}" group-title="${ch.group}",${ch.name}\n`;
-    out += ch.url + "\n";
+    let out = "#EXTM3U\n";
+    for (const ch of items) {
+      out += `#EXTINF:-1 tvg-id="${ch.tvgId}" tvg-logo="${ch.tvgLogo}" group-title="${ch.group}",${ch.name}\n`;
+      out += ch.url + "\n";
+    }
+
+    return new Response(out, {
+      headers: { 
+        "Content-Type": "application/vnd.apple.mpegurl; charset=utf-8",
+        "Content-Disposition": `attachment; filename="${username}_playlist.m3u"`
+      }
+    });
+  } catch (e) {
+    return new Response("Error loading playlist: " + e.message, { status: 500 });
   }
-
-  return new Response(out, {
-    headers: { "Content-Type": "application/vnd.apple.mpegurl; charset=utf-8" }
-  });
 }
