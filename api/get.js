@@ -1,7 +1,6 @@
-// api/get.js
-import auth from "./_auth.js";              // default export
-import { loadM3U } from "./_m3u.js";        // named export (dosyada böyle)
-import { loadMovies } from "./movies_m3u.js"; // named export (dosyada böyle)
+import auth from "./_auth.js";                 // default export
+import { loadM3U } from "./_m3u.js";           // kanallar (listE.m3u)
+import { loadMovies } from "./movies_m3u.js";  // filmler (playlist.json)
 
 export const config = { runtime: "edge" };
 
@@ -20,22 +19,22 @@ export default async function handler(req) {
       return new Response("type=m3u olmalı", { status: 400 });
     }
 
-    // Kullanıcı doğrulama
+    // kullanıcı doğrulama
     const user = auth(username, password);
     if (!user) return new Response("Auth failed", { status: 401 });
 
-    // 1) Kanallar (listE.m3u)
+    // kanallar
     let channels = [];
     try { channels = await loadM3U(); } catch (_) {}
 
-    // 2) Filmler (playlist.json)
+    // filmler (istersen user.vod kontrolü ekleyebilirsin)
     let movies = [];
     try { movies = await loadMovies(); } catch (_) {}
 
-    // 3) Tek M3U (kanallar + filmler)
+    // tek M3U (kanallar + filmler)
     const lines = ["#EXTM3U"];
 
-    // Kanallar
+    // kanallar
     for (const ch of channels) {
       const title = esc(ch.title || ch.name || "Kanal");
       const logo  = esc(ch.logo  || "");
@@ -46,7 +45,7 @@ export default async function handler(req) {
       lines.push(link);
     }
 
-    // Filmler (grup adı “Filmler”)
+    // filmler
     for (const mv of movies) {
       const title = esc(mv.title || "Film");
       const logo  = esc(mv.logo  || "");
@@ -64,7 +63,7 @@ export default async function handler(req) {
         "Cache-Control": "no-store, max-age=0"
       }
     });
-  } catch (err) {
+  } catch {
     return new Response("SERVER_ERROR", { status: 500 });
   }
 }
