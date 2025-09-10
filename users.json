@@ -1,6 +1,34 @@
 [
-  { "username": "savas",  "password": "security", "active": true, "expires": "2099-12-31", "packages": ["GENEL"] },
-  { "username": "baris", "password": "Helin2121", "active": true, "expires": "2099-12-31", "packages": ["GENEL"] },
-  { "username": "cihat", "password": "hakkari", "active": true, "expires": "2099-12-31", "packages": ["GENEL"] },
-  { "username": "admin", "password": "admin", "active": true, "expires": "2099-12-31", "packages": ["GENEL"] }
+  {
+    "username": "baris",
+    "password": "Helin2121",
+    "active": true,
+    "expires": "2099-12-31",
+    "packages": ["GENEL", "SPOR", "SİNEMA"],
+    "customPlaylist": "https://cdn.jsdelivr.net/gh/barisha-app/barisha-panel@main/kanal%20listesi/listE.m3u"
+  },
+  {
+    "username": "cihat",
+    "password": "abi",
+    "active": true,
+    "expires": "2099-12-31",
+    "packages": ["GENEL", "HABER"],
+    "customPlaylist": "https://cdn.jsdelivr.net/gh/barisha-app/barisha-panel@main/kanal%20listesi/listE.m3u"
+  },
+  {
+    "username": "admin",
+    "password": "admin",
+    "active": true,
+    "expires": "2099-12-31",
+    "packages": ["GENEL", "SPOR", "SİNEMA", "HABER", "BELGESEL"],
+    "customPlaylist": "https://cdn.jsdelivr.net/gh/barisha-app/barisha-panel@main/kanal%20listesi/listE.m3u"
+  },
+  {
+    "username": "premium",
+    "password": "premium123",
+    "active": true,
+    "expires": "2024-12-31",
+    "packages": ["GENEL", "SPOR", "SİNEMA", "PREMIUM"],
+    "customPlaylist": "https://cdn.jsdelivr.net/gh/barisha-app/barisha-premium@main/premium-list.m3u"
+  }
 ]
