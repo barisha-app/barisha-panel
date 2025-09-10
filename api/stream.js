@@ -1,7 +1,7 @@
 // api/stream.js
-import auth from "./_auth.js";
-import { loadM3U } from "./_m3u.js";
-import { loadMovies } from "./movies_m3u.js";
+import { auth } from "./_auth";
+import { loadM3U } from "./_m3u";
+import { loadMovies } from "./movies_m3u";
 
 export const config = { runtime: "edge" };
 
@@ -16,19 +16,21 @@ export default async function handler(req) {
   const username = u.searchParams.get("username") || "";
   const password = u.searchParams.get("password") || "";
 
+  // kullanıcı kontrolü
   const user = auth(username, password);
   if (!user) return new Response("Auth failed", { status: 401 });
 
+  let list = [];
   if (kind === "live") {
-    const list = await loadM3U().catch(() => []);
+    list = await loadM3U(); // kanallar
+    // stream_id = idx + 1000
     const idx = id - 1000;
     if (idx < 0 || idx >= list.length) return new Response("Not found", { status: 404 });
     return Response.redirect(list[idx].url, 302);
-  }
-
-  if (kind === "movie") {
-    if (user.vod === false) return new Response("VOD disabled", { status: 403 });
-    const list = await loadMovies().catch(() => []);
+  } else if (kind === "movie") {
+    if (!user.vod) return new Response("VOD disabled", { status: 403 });
+    list = await loadMovies(); // filmler
+    // stream_id = idx + 5000
     const idx = id - 5000;
     if (idx < 0 || idx >= list.length) return new Response("Not found", { status: 404 });
     return Response.redirect(list[idx].url, 302);
