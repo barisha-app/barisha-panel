@@ -1,20 +1,28 @@
+import users from "../users.json" assert { type: "json" };
+
+/** basit kullanıcı doğrulama */
+export function auth(username, password) {
+  const u = users.find(x => x.username === username && x.password === password);
+  if (!u) return null;
+  if (u.active === false) return null;
+  if (u.expires && new Date(u.expires).getTime() < Date.now()) return null;
+  return u; // { username, packages:[...], ... }
 // api/_auth.js
 // Basit kullanıcı doğrulama (users.json'dan okur)
 
-import users from "../users.json" assert { type: "json" };
+import USERS from "../users.json";
 
-export default function auth(username, password) {
-  const u = (username || "").trim();
-  const p = (password || "").trim();
+export function auth(username = "", password = "") {
+  username = String(username || "").trim();
+  password = String(password || "").trim();
 
-  const user = users.find(x => x.username === u && x.password === p);
-  if (!user || user.active === false) return null;
+  const user = USERS.find(
+    (u) =>
+      u.active &&
+      u.username === username &&
+      u.password === password &&
+      new Date(u.expires) >= new Date()
+  );
 
-  // expire kontrolü (YYYY-MM-DD)
-  if (user.expires) {
-    const today = new Date().toISOString().slice(0, 10);
-    if (today > user.expires) return null;
-  }
-
-  return user; // { username, packages, vod, ... }
+  return user || null;
 }
