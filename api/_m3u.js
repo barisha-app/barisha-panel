@@ -1,23 +1,32 @@
-// Kaynak M3U: önce jsDelivr, olmazsa raw.githubusercontent fallback
-const PRIMARY  = "https://cdn.jsdelivr.net/gh/barisha-app/barisha-panel@main/kanal%20listesi/listE.m3u";
-const FALLBACK = "https://raw.githubusercontent.com/barisha-app/barisha-panel/refs/heads/main/kanal%20listesi/listE.m3u";
+import { getUserPlaylist } from "./_auth.js";
 
-// 5 dk cache
-let CACHE = { ts: 0, items: [] };
+// 5 dk cache - her kullanıcı için ayrı cache
+let CACHE = {};
 const CACHE_MS = 5 * 60 * 1000;
 
 export const config = { runtime: "edge" };
 
-export async function loadM3U() {
+export async function loadM3U(user = null) {
+  const playlistUrl = getUserPlaylist(user);
+  const cacheKey = user ? `${user.username}_${playlistUrl}` : playlistUrl;
   const now = Date.now();
-  if (now - CACHE.ts < CACHE_MS && CACHE.items.length) return CACHE.items;
+  
+  // Cache kontrolü
+  if (CACHE[cacheKey] && now - CACHE[cacheKey].ts < CACHE_MS && CACHE[cacheKey].items.length) {
+    return CACHE[cacheKey].items;
+  }
 
-  let text = await safeFetch(PRIMARY);
-  if (!text) text = await safeFetch(FALLBACK);
-  if (!text) throw new Error("M3U indirilemedi (primary + fallback)");
+  let text = await safeFetch(playlistUrl);
+  if (!text) {
+    // Fallback: genel playlist
+    const fallbackUrl = "https://cdn.jsdelivr.net/gh/barisha-app/barisha-panel@main/kanal%20listesi/listE.m3u";
+    text = await safeFetch(fallbackUrl);
+  }
+  
+  if (!text) throw new Error("M3U indirilemedi");
 
   const items = parseM3U(text);
-  CACHE = { ts: now, items };
+  CACHE[cacheKey] = { ts: now, items };
   return items;
 }
 
