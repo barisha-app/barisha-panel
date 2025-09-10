@@ -1,8 +1,8 @@
-// playlist.json -> [{ title, logo, group, url, type?... }]
-const PRIMARY  =
-  "https://cdn.jsdelivr.net/gh/barisha-app/barisha-panel@main/kanal%20listesi/playlist.json";
-const FALLBACK =
-  "https://raw.githubusercontent.com/barisha-app/barisha-panel/refs/heads/main/kanal%20listesi/playlist.json";
+// api/movies_m3u.js
+// Filmler (playlist.json) -> [{ title, logo, group, url }]
+
+const PRIMARY  = "https://cdn.jsdelivr.net/gh/barisha-app/barisha-panel@main/kanal%20listesi/playlist.json";
+const FALLBACK = "https://raw.githubusercontent.com/barisha-app/barisha-panel/refs/heads/main/kanal%20listesi/playlist.json";
 
 async function safeFetch(url) {
   const r = await fetch(url, { cache: "no-store", headers: { "Cache-Control": "no-cache" } });
@@ -18,7 +18,6 @@ export async function loadMovies() {
     data = await safeFetch(FALLBACK);
   }
 
-  // beklenen format: [{ title, group, logo, url, type }]
   const out = [];
   for (const it of Array.isArray(data) ? data : []) {
     const url = (it.url || "").trim();
