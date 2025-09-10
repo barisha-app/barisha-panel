@@ -10,6 +10,12 @@
       "destination": "/api/stream?kind=live&id=:id&username=:username&password=:password" },
 
     { "source": "/movie/:username/:password/:id",
-      "destination": "/api/stream?kind=movie&id=:id&username=:username&password=:password" }
+      "destination": "/api/stream?kind=movie&id=:id&username=:username&password=:password" },
+
+    { "source": "/list.m3u",
+      "destination": "/api/get" },
+
+    { "source": "/vod.m3u",
+      "destination": "/api/get?type=vod" }
   ]
 }
