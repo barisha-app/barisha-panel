@@ -1,2 +1,2 @@
-// .php isteyen player'lar için alias
+// api/player_api.php.js
 export { default, config } from "./player_api.js";
