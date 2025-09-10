@@ -1,8 +1,6 @@
 {
   "rewrites": [
-    { "source": "/player_api.php", "destination": "/api/player_api" },
-    { "source": "/player_api",     "destination": "/api/player_api" },
-    { "source": "/get.php",        "destination": "/api/get" },
-    { "source": "/get",            "destination": "/api/get" }
+    { "source": "/player_api.php", "destination": "/api/player_api.php" },
+    { "source": "/get.php", "destination": "/api/get.php" }
   ]
 }
