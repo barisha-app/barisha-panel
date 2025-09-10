@@ -1,8 +1,8 @@
-// listE.m3u -> [{ title, logo, group, url }]
-const PRIMARY  =
-  "https://cdn.jsdelivr.net/gh/barisha-app/barisha-panel@main/kanal%20listesi/listE.m3u";
-const FALLBACK =
-  "https://raw.githubusercontent.com/barisha-app/barisha-panel/refs/heads/main/kanal%20listesi/listE.m3u";
+// api/_m3u.js
+// Kanal M3U (listE.m3u) -> [{ title, logo, group, url }]
+
+const PRIMARY  = "https://cdn.jsdelivr.net/gh/barisha-app/barisha-panel@main/kanal%20listesi/listE.m3u";
+const FALLBACK = "https://raw.githubusercontent.com/barisha-app/barisha-panel/refs/heads/main/kanal%20listesi/listE.m3u";
 
 async function safeFetch(url) {
   const r = await fetch(url, { cache: "no-store", headers: { "Cache-Control": "no-cache" } });
@@ -17,9 +17,9 @@ function parseM3U(text) {
     const L = lines[i].trim();
     if (!L.startsWith("#EXTINF")) continue;
 
-    // #EXTINF:-1 tvg-logo="..." group-title="...",Title
-    const logo  = (L.match(/tvg-logo="([^"]*)"/i) || [,""])[1];
-    const group = (L.match(/group-title="([^"]*)"/i) || [,"Kanallar"])[1];
+    // #EXTINF satırından alanları çek
+    const logo  = (L.match(/tvg-logo="([^"]*)"/i) || [, ""])[1];
+    const group = (L.match(/group-title="([^"]*)"/i) || [, "Kanallar"])[1];
     const title = (L.split(",")[1] || "Kanal").trim();
 
     // sonraki satır URL
