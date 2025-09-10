@@ -1,92 +1,99 @@
-// api/_m3u.js
-// Birden fazla M3U kaynağını sırayla dener (ilk çalışanı kullanır)
-// Kanal M3U kaynağını indirir ve satırları diziye çevirir
+// barisha-panel/api/movies_m3u.js
+// api/movies_m3u.js
+// VOD (filmler) için JSON playlist'ini okur ve kanalla aynı formata getirir
 
-const SOURCES = [
-  // 1) jsDelivr (hızlı CDN)
-  "https://cdn.jsdelivr.net/gh/barisha-app/barisha-panel@main/kanal%20listesi/listeE.m3u",
-  // 2) GitHub raw (yedek)
-  "https://raw.githubusercontent.com/barisha-app/barisha-panel/refs/heads/main/kanal%20listesi/listeE.m3u"
-  // 3) istersen buraya başka bir M3U daha ekleyebilirsin
-  // "https://...../kanallar.m3u"
-];
-// Barış'ın repo yoluna göre iki kaynak:
+// Kaynak: önce jsDelivr, olmazsa raw.githubusercontent fallback
 const PRIMARY =
-  "https://cdn.jsdelivr.net/gh/barisha-app/barisha-panel@main/kanal%20listesi/listE.m3u";
+  "https://cdn.jsdelivr.net/gh/barisha-app/barisha-playlist@main/playlist.json";
 const FALLBACK =
-  "https://raw.githubusercontent.com/barisha-app/barisha-panel/refs/heads/main/kanal%20listesi/listE.m3u";
+const MOVIES_URL =
+  "https://raw.githubusercontent.com/barisha-app/barisha-playlist/main/playlist.json";
 
-// 5 dk cache (fonksiyon içi)
+// 5 dk hafıza cache
 let CACHE = { ts: 0, items: [] };
-const CACHE_MS = 5 * 60 * 1000; // 5 dk cache
 const CACHE_MS = 5 * 60 * 1000;
+// 5 dk cache
+let MCACHE = { ts: 0, items: [] };
+const MCACHE_MS = 5 * 60 * 1000;
 
 export const config = { runtime: "edge" };
 
-export async function loadM3U() {
+/**
+ * playlist.json -> [{ title, group, type, logo, url }, ...]
+ * sadece geçerli (url’i olan) öğeleri döndürür
+ */
+export async function loadMovies() {
   const now = Date.now();
   if (now - CACHE.ts < CACHE_MS && CACHE.items.length) return CACHE.items;
 
-  let text = null;
-  for (const url of SOURCES) {
-    const t = await safeFetch(url);
-    if (t) { text = t; break; }
-  }
-  if (!text) throw new Error("Hiçbir M3U kaynağı okunamadı");
+  // metni çek
   let text = await safeFetch(PRIMARY);
   if (!text) text = await safeFetch(FALLBACK);
-  if (!text) throw new Error("M3U indirilemedi (primary + fallback)");
+  if (!text) throw new Error("playlist.json alınamadı (primary + fallback)");
 
-  const items = parseM3U(text);
+  // parse
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch (e) {
+    throw new Error("playlist.json geçersiz JSON");
+  }
+  if (!Array.isArray(data)) throw new Error("playlist.json dizi değil");
+
+  // normalize -> panelin beklediği alanlar
+  const items = data
+    .map((it) => {
+      const title = (it.title || "").trim();
+      const group = (it.group || "Filmler").trim();
+      const logo = (it.logo || "").trim();
+      const url = (it.url || "").trim();
+      // type "direct" / "m3u8" vb olabilir; burada hepsini geçirelim,
+      // istersen sadece direct/m3u8 filtrelersin
+      if (!title || !url) return null;
+
+      return {
+        title,
+        group,
+        logo: logo || null,
+        url,
+      };
+    })
+    .filter(Boolean);
+
   CACHE = { ts: now, items };
-@@ -33,35 +28,29 @@ export async function loadM3U() {
+  return items;
+}
 
 async function safeFetch(url) {
   try {
-    const res = await fetch(url, { cache: "no-store", headers: { "Cache-Control": "no-cache" } });
-    if (!res.ok) return null;
-    const res = await fetch(url, { cache: "no-store" });
-    if (!res.ok) return "";
-    return await res.text();
-  } catch { return null; }
+    const r = await fetch(url, { cache: "no-store", headers: { "Cache-Control": "no-cache" } });
+    if (!r.ok) return null;
+    return await r.text();
   } catch {
-    return "";
+    return null;
   }
+  if (now - MCACHE.ts < MCACHE_MS && MCACHE.items.length) return MCACHE.items;
+
+  const res = await fetch(MOVIES_URL, {
+    cache: "no-store",
+    headers: { "Cache-Control": "no-cache" },
+  });
+
+  if (!res.ok) throw new Error(`Movies JSON çekilemedi: ${res.status}`);
+  const arr = await res.json();
+
+  // beklenen şekil:
+  // [{title, group, type, logo, url}]
+  const norm = Array.isArray(arr)
+    ? arr.map((it) => ({
+        title: it.title || "Video",
+        group: it.group || "Filmler",
+        type: (it.type || "direct").toLowerCase(),
+        logo: it.logo || "",
+        url: it.url || "",
+      }))
+    : [];
+
+  MCACHE = { ts: now, items: norm };
+  return norm;
 }
-
-// Basit bir M3U satır ayrıştırıcı (senin mevcut fonksiyonunla aynı rol)
-function parseM3U(text) {
-  const lines = text.split(/\r?\n/);
-  const out = [];
-  let meta = null;
-
-  for (const line of lines) {
-    if (!line) continue;
-    if (line.startsWith("#EXTINF")) {
-      meta = line;
-      continue;
-    }
-    if (!line.startsWith("#") && meta) {
-      // Basit çıkarım: name, group, logo
-      const nameMatch  = meta.match(/,(.*)$/);
-      const logoMatch  = meta.match(/tvg-logo="([^"]*)"/);
-      const groupMatch = meta.match(/group-title="([^"]*)"/);
-      out.push({
-        name:  nameMatch ? nameMatch[1].trim() : "No Name",
-        group: groupMatch ? groupMatch[1] : "Genel",
-        logo:  logoMatch ? logoMatch[1] : "",
-        url:   line.trim()
-      });
-  for (const ln of lines) {
-    if (ln.startsWith("#EXTINF")) {
-      // #EXTINF:-1 tvg-id="" tvg-name="TRT 1" group-title="Ulusal", TRT 1
-      meta = ln;
-    } else if (!!meta && ln && !ln.startsWith("#")) {
-      const title = (meta.match(/,(.*)$/) || [,""])[1].trim();
-      const group =
-        (meta.match(/group-title="([^"]*)"/) || [,""])[1] || "Kanallar";
-      const logo = (meta.match(/tvg-logo="([^"]*)"/) || [,""])[1] || "";
-      out.push({ title, group, logo, url: ln, type: "direct" });
-      meta = null;
-    }
-  }
