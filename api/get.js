@@ -1,12 +1,11 @@
-import auth from "./_auth.js";                 // default export
-import { loadM3U } from "./_m3u.js";           // kanallar (listE.m3u)
-import { loadMovies } from "./movies_m3u.js";  // filmler (playlist.json)
+// api/get.js
+import auth from "./_auth.js";
+import { loadM3U } from "./_m3u.js";
+import { loadMovies } from "./movies_m3u.js";
 
 export const config = { runtime: "edge" };
 
-function esc(s = "") {
-  return String(s).replace(/"/g, '\\"');
-}
+function esc(s = "") { return String(s).replace(/"/g, '\\"'); }
 
 export default async function handler(req) {
   try {
@@ -19,22 +18,19 @@ export default async function handler(req) {
       return new Response("type=m3u olmalı", { status: 400 });
     }
 
-    // kullanıcı doğrulama
     const user = auth(username, password);
     if (!user) return new Response("Auth failed", { status: 401 });
 
-    // kanallar
-    let channels = [];
-    try { channels = await loadM3U(); } catch (_) {}
+    const [channels, moviesRaw] = await Promise.all([
+      loadM3U().catch(() => []),
+      loadMovies().catch(() => [])
+    ]);
 
-    // filmler (istersen user.vod kontrolü ekleyebilirsin)
-    let movies = [];
-    try { movies = await loadMovies(); } catch (_) {}
+    // İstersen VOD yetkisi olmayanlardan filmleri gizle:
+    const movies = user.vod === false ? [] : moviesRaw;
 
-    // tek M3U (kanallar + filmler)
     const lines = ["#EXTM3U"];
 
-    // kanallar
     for (const ch of channels) {
       const title = esc(ch.title || ch.name || "Kanal");
       const logo  = esc(ch.logo  || "");
@@ -45,7 +41,6 @@ export default async function handler(req) {
       lines.push(link);
     }
 
-    // filmler
     for (const mv of movies) {
       const title = esc(mv.title || "Film");
       const logo  = esc(mv.logo  || "");
@@ -59,11 +54,11 @@ export default async function handler(req) {
     return new Response(lines.join("\n"), {
       headers: {
         "Content-Type": "application/vnd.apple.mpegurl; charset=utf-8",
-        "Content-Disposition": 'inline; filename="list.m3u"',
+        "Content-Disposition": "inline; filename=\"list.m3u\"",
         "Cache-Control": "no-store, max-age=0"
       }
     });
-  } catch {
+  } catch (e) {
     return new Response("SERVER_ERROR", { status: 500 });
   }
 }
